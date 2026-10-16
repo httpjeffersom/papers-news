@@ -49,7 +49,9 @@ export default function App() {
       const result = await refreshNews(sources, articles, savedIds);
       setArticles(result.articles);
       if (result.errors.length > 0) {
-        const failedSources = result.errors.map((failure) => failure.sourceName).join(", ");
+        const failedSources = result.errors
+          .map((failure) => `${failure.sourceName}: ${failure.message}`)
+          .join("; ");
         setRefreshError(
           `Atualização parcial. Não foi possível atualizar: ${failedSources}. Notícias antigas permanecem disponíveis quando há cache.`,
         );
