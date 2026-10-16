@@ -153,22 +153,61 @@ export async function discoverAndFetchSource({ name, url }) {
   throw new Error("Não encontrei um link de feed RSS/Atom nesse site.");
 }
 
-export async function refreshNews(sources = []) {
+export async function refreshNews(sources = [], cachedArticles = [], savedIds = []) {
   const activeSources = sources.filter((source) => !source.isDemo);
   if (activeSources.length === 0) {
     await new Promise((resolve) => window.setTimeout(resolve, 450));
-    return [...demoArticles].sort(
-      (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
-    );
+    return {
+      articles: [...demoArticles].sort(
+        (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
+      ),
+      errors: [],
+    };
   }
 
-  const results = await Promise.all(
+  const results = await Promise.allSettled(
     activeSources.map(async (source) => {
       const feedUrl = source.feedUrl || source.url;
-      return (await fetchFeed(feedUrl, source)).articles;
+      return {
+        source,
+        articles: (await fetchFeed(feedUrl, source)).articles,
+      };
     }),
   );
-  return results.flat().sort(
-    (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
-  );
+  const articles = [];
+  const errors = [];
+
+  results.forEach((result, index) => {
+    if (result.status === "fulfilled") {
+      articles.push(...result.value.articles);
+      const refreshedIds = new Set(result.value.articles.map((article) => article.id));
+      articles.push(
+        ...cachedArticles.filter(
+          (article) =>
+            article.sourceId === result.value.source.id &&
+            savedIds.includes(article.id) &&
+            !refreshedIds.has(article.id),
+        ),
+      );
+      return;
+    }
+
+    const source = activeSources[index];
+    errors.push({
+      sourceName: source.name || new URL(source.url).hostname,
+      message: result.reason instanceof Error
+        ? result.reason.message
+        : String(result.reason),
+    });
+    articles.push(
+      ...cachedArticles.filter((article) => article.sourceId === source.id),
+    );
+  });
+
+  return {
+    articles: articles.sort(
+      (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
+    ),
+    errors,
+  };
 }

@@ -1,21 +1,34 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "./components/Header.jsx";
 import Navigation from "./components/Navigation.jsx";
 import NewsFeed from "./components/NewsFeed.jsx";
 import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
+import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
 
 export default function App() {
+  const [initialState] = useState(loadAppState);
   const [activeView, setActiveView] = useState("all");
   const [search, setSearch] = useState("");
-  const [savedIds, setSavedIds] = useState([]);
-  const [sources, setSources] = useState(demoSources);
-  const [articles, setArticles] = useState(demoArticles);
+  const [savedIds, setSavedIds] = useState(() => initialState?.savedIds ?? []);
+  const [sources, setSources] = useState(() => initialState?.sources ?? demoSources);
+  const [articles, setArticles] = useState(() => initialState?.articles ?? demoArticles);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState("");
+  const [persistenceError, setPersistenceError] = useState("");
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [sourceError, setSourceError] = useState("");
+
+  useEffect(() => {
+    try {
+      saveAppState({ sources, articles, savedIds });
+      setPersistenceError("");
+    } catch (error) {
+      console.error("Não foi possível salvar os dados do Papers News:", error);
+      setPersistenceError("Não foi possível salvar suas alterações neste dispositivo.");
+    }
+  }, [articles, savedIds, sources]);
 
   const visibleArticles = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
@@ -33,8 +46,14 @@ export default function App() {
     setIsRefreshing(true);
     setRefreshError("");
     try {
-      const refreshedArticles = await refreshNews(sources);
-      setArticles(refreshedArticles);
+      const result = await refreshNews(sources, articles, savedIds);
+      setArticles(result.articles);
+      if (result.errors.length > 0) {
+        const failedSources = result.errors.map((failure) => failure.sourceName).join(", ");
+        setRefreshError(
+          `Atualização parcial. Não foi possível atualizar: ${failedSources}. Notícias antigas permanecem disponíveis quando há cache.`,
+        );
+      }
     } catch (error) {
       console.error("Não foi possível atualizar as notícias:", error);
       setRefreshError("Não foi possível atualizar o feed. Tente novamente.");
@@ -80,6 +99,11 @@ export default function App() {
   function removeSource(sourceId) {
     setSources((current) => current.filter((source) => source.id !== sourceId));
     setArticles((current) => current.filter((article) => article.sourceId !== sourceId));
+    setSavedIds((current) =>
+      current.filter(
+        (id) => !articles.some((article) => article.id === id && article.sourceId === sourceId),
+      ),
+    );
   }
 
   const isSourcesView = activeView === "sources";
@@ -95,6 +119,11 @@ export default function App() {
       <div className="workspace">
         <Navigation activeView={activeView} onChange={setActiveView} />
         <main className="main-content">
+          {persistenceError && (
+            <div className="error-state persistence-error" role="alert">
+              {persistenceError}
+            </div>
+          )}
           {isSourcesView ? (
             <SourcesView
               sources={sources}

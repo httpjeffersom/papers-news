@@ -10,6 +10,8 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 - Favoritos para guardar publicações.
 - Cadastro e remoção de sites e feeds RSS/Atom.
 - Atualização das publicações das fontes cadastradas.
+- Fontes, notícias em cache e favoritos preservados no armazenamento local.
+- Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
 - Interface responsiva em português, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
 
@@ -55,6 +57,12 @@ Gere a versão de produção:
 
 ```bash
 npm run build
+```
+
+Execute os testes:
+
+```bash
+npm test
 ```
 
 Para preparar/atualizar e iniciar a versão desktop:
