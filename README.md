@@ -22,6 +22,16 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 
 > Apesar de ser uma aplicação desktop, este projeto usa Neutralino.js — não Electron.
 
+## Estrutura do projeto
+
+- `src/components/`: cabeçalho, navegação, feed de notícias e gerenciamento de fontes.
+- `src/services/`: consulta e interpretação de feeds, além da integração desktop para abrir links.
+- `src/styles/`: tokens de design, estilos globais e estilos das telas.
+- `src/data/`: publicações e fontes de demonstração.
+- `public/images/`: ilustrações usadas no conteúdo de demonstração.
+- `neutralino.config.json`: configuração da janela e dos recursos do app desktop.
+- `resources/`: arquivos gerados pelo build do Vite; não são versionados.
+
 ## Requisitos
 
 - Node.js e npm
