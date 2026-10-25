@@ -2,6 +2,34 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.3.0] - 2026-10-25
+
+### Adicionado
+
+- Proxy local de feeds (`scripts/feed-proxy.mjs`) em `http://127.0.0.1:8787`, iniciado automaticamente por `npm run dev`, `npm run preview` e `npm run desktop` através de `scripts/launch.mjs`.
+- Leitura direta de XML RSS 2.0, Atom e RDF com `DOMParser`, sem depender de conversores públicos.
+- Descoberta de feeds em páginas HTML via `<link rel="alternate">`, links de feed e hubs de feeds.
+- Lista de feeds conhecidos para sites populares que não anunciam o RSS na página (g1, UOL, Folha, CNN Brasil, Exame, InfoMoney, Olhar Digital, Canaltech, Brasil de Fato e BBC Brasil).
+- Suporte a caminhos comuns como `/feed/`, `/rss`, `/rss.xml`, `/atom.xml`, `/index.xml` e `/feeds/posts/default`.
+- Script `npm run proxy` para iniciar somente o proxy.
+- Testes do interpretador de feeds (RSS, Atom, RDF, entidades HTML, imagens e iniciais) e da descoberta automática.
+
+### Corrigido
+
+- Erro de CORS ao adicionar sites: a requisição agora sai do proxy local, usando o IP do usuário.
+- Feeds com URLs de imagem malformadas (host duplicado) são corrigidos automaticamente.
+- Imagens de vídeo/embed deixam de ser usadas como capa; a imagem é escolhida entre descrição, conteúdo, thumbnails e enclosures.
+- Feeds de comentários do WordPress não são mais confundidos com o feed principal.
+- Respostas de erro do proxy não exibem mais HTML bruto nas mensagens do app.
+- Feeds com entidades HTML inválidas (como `&nbsp;`) passam a ser interpretados.
+- Charset dos feeds é respeitado pelo proxy (incluindo ISO-8859-1).
+
+### Alterado
+
+- Versão do aplicativo atualizada para `0.3.0`.
+- RSS2JSON e AllOrigins passam a ser apenas alternativas quando o proxy local não está disponível.
+- Texto da tela de Fontes e README explicam o funcionamento do proxy e da descoberta automática.
+
 ## [0.2.0] - 2026-10-25
 
 ### Corrigido

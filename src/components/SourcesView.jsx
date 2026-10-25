@@ -61,8 +61,9 @@ export default function SourcesView({
       </div>
 
       <div className="sources-notice">
-        Cole o endereço de um site ou, se a descoberta automática falhar, o endereço direto do feed RSS/Atom
-        (por exemplo, https://tecnoblog.net/feed/). A consulta usa o serviço público RSS2JSON, que recebe a URL do feed.
+        Cole o endereço do site (por exemplo, https://tecnoblog.net/) e o Papers News encontra o feed
+        automaticamente. Se preferir, informe o endereço direto do RSS/Atom. O proxy local é iniciado
+        junto com o app, então não depende de serviços públicos.
       </div>
 
       <form className="source-form" onSubmit={handleSubmit}>
@@ -80,7 +81,7 @@ export default function SourcesView({
             <input
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://exemplo.com ou /feed/"
+              placeholder="exemplo.com ou https://exemplo.com/feed/"
               type="text"
               inputMode="url"
               required
