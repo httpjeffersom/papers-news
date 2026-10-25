@@ -2,8 +2,26 @@
   "name": "papers-news",
   "version": "0.3.1",
   "private": true,
+  "description": "Leitor pessoal de notícias RSS/Atom, local-first, sem telemetria e de código aberto.",
   "license": "MIT",
   "author": "Jeffersom",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/httpjeffersom/papers-news.git"
+  },
+  "homepage": "https://github.com/httpjeffersom/papers-news#readme",
+  "bugs": {
+    "url": "https://github.com/httpjeffersom/papers-news/issues"
+  },
+  "keywords": [
+    "rss",
+    "atom",
+    "feed-reader",
+    "local-first",
+    "privacy",
+    "no-telemetry",
+    "neutralinojs"
+  ],
   "type": "module",
   "scripts": {
     "dev": "node scripts/launch.mjs dev",

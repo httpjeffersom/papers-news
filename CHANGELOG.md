@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [Não lançado]
+
+### Adicionado
+
+- Política de privacidade em [PRIVACY.md](PRIVACY.md): todos os dados ficam no dispositivo, sem telemetria, com detalhes sobre o que sai do dispositivo, limites do uso offline e como apagar os dados.
+- Destaque de privacidade e de código aberto (MIT) no README, com badges e resumo no topo.
+
 ## [0.3.1] - 2026-10-25
 
 ### Adicionado

@@ -1,8 +1,24 @@
 # Papers News
 
+[![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
+[![Sem telemetria](https://img.shields.io/badge/telemetria-nenhuma-brightgreen.svg)](PRIVACY.md)
+[![Dados locais](https://img.shields.io/badge/dados-100%25%20locais-informational.svg)](PRIVACY.md)
+
 Um leitor pessoal de notícias para acompanhar publicações de diferentes sites em um só lugar. O Papers News encontra feeds RSS/Atom, reúne as notícias em ordem cronológica e permite guardar artigos para ler depois.
 
+**Código aberto, licença MIT, dados 100% locais e sem telemetria.**
+
 ![Ilustração de uma publicação no Papers News](public/images/demo-learning.svg)
+
+## Privacidade e dados
+
+- **Tudo fica no seu computador.** Fontes, notícias em cache e favoritos são salvos no `localStorage` do aplicativo. Não existe conta, nuvem, sincronização ou backup remoto.
+- **Zero telemetria.** Nenhum analytics, anúncio, rastreador ou relatório de erro. O projeto não mantém servidor e nada é enviado ao autor.
+- **Nenhum dado pessoal é coletado.** Não são pedidos nome, e-mail, localização ou identificadores de dispositivo.
+- **Offline para leitura.** O que já foi carregado continua acessível sem internet; atualizar as fontes e baixar imagens novas exige conexão.
+- **Código aberto (MIT).** Qualquer pessoa pode auditar exatamente o que o aplicativo faz.
+
+O app acessa apenas os sites cujos feeds você cadastra, os servidores das imagens dessas notícias e, como contingência, serviços públicos de CORS. O proxy local escuta somente em `127.0.0.1`. Todos os detalhes estão em [PRIVACY.md](PRIVACY.md).
 
 ## Recursos
 
@@ -11,6 +27,7 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 - Cadastro e remoção de sites e feeds RSS/Atom.
 - Atualização das publicações das fontes cadastradas.
 - Fontes, notícias em cache e favoritos preservados no armazenamento local.
+- Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
 - Interface responsiva em português, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
@@ -34,6 +51,8 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 - `public/images/`: ilustrações usadas no conteúdo de demonstração.
 - `scripts/`: proxy local de feeds, launcher do Vite/Neutralino e empacotador do executável Windows.
 - `neutralino.config.json`: configuração da janela e dos recursos do app desktop.
+- `PRIVACY.md`: política de privacidade e detalhes sobre os dados locais.
+- `LICENSE` e `THIRD-PARTY-NOTICES.txt`: licença MIT do projeto e licenças dos componentes de terceiros.
 - `resources/`: arquivos gerados pelo build do Vite; não são versionados.
 
 ## Requisitos
@@ -140,7 +159,7 @@ Consulte também o [CHANGELOG.md](CHANGELOG.md) para ver o que mudou em cada ver
 
 ## Licença
 
-Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para o texto completo.
+O Papers News é um projeto de **código aberto** distribuído sob a **licença MIT**. Veja [LICENSE](LICENSE) para o texto completo.
 
 As bibliotecas de terceiros mantêm suas próprias licenças. Os textos completos dos componentes distribuídos no pacote estão em [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt); as dependências de desenvolvimento estão listadas em `package.json` e `package-lock.json`.
 
