@@ -42,7 +42,7 @@ O Papers News não coleta dados, mas é um leitor de notícias: para exibir cont
 1. **Atualização de feeds.** O app faz uma requisição ao site que você cadastrou (diretamente ou pelo proxy local em `http://127.0.0.1:8787`). Como em qualquer leitor RSS, esse site recebe seu endereço IP, um *user-agent* de navegador e a URL solicitada.
 2. **Imagens das notícias.** As imagens são carregadas dos servidores das publicações. Esses servidores também veem seu endereço IP. O app não envia cookies desses sites nem scripts de rastreamento.
 3. **Links abertos.** "Abrir publicação" abre o link no seu navegador padrão; a partir daí valem as políticas do site visitado.
-4. **Serviços públicos de fallback.** Se o proxy local não estiver disponível (por exemplo, ao abrir o projeto no navegador sem `npm run dev` ou se o proxy falhar no desktop), o app tenta `api.allorigins.win` e `api.rss2json.com` para contornar CORS. Nesse caso, **a URL do feed é enviada a esses serviços de terceiros**. No app desktop o proxy local é iniciado automaticamente, então esse caminho só é usado como contingência.
+4. **Serviços públicos de fallback.** Se o proxy local não estiver disponível (por exemplo, ao abrir o projeto no navegador sem `npm run dev`) **ou não conseguir acessar um feed**, o app tenta `api.rss2json.com` e `api.allorigins.win` como última alternativa para contornar CORS e bloqueios do site. Nesse caso, **a URL do feed é enviada a esses serviços de terceiros**. No app desktop o proxy local é iniciado automaticamente, então isso é uma exceção — mas é uma saída de dados possível e está documentada aqui.
 
 O proxy local escuta apenas em `127.0.0.1` (loopback) por padrão e não é acessível pela internet.
 

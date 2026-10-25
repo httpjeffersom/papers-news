@@ -18,7 +18,7 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 - **Offline para leitura.** O que já foi carregado continua acessível sem internet; atualizar as fontes e baixar imagens novas exige conexão.
 - **Código aberto (MIT).** Qualquer pessoa pode auditar exatamente o que o aplicativo faz.
 
-O app acessa apenas os sites cujos feeds você cadastra, os servidores das imagens dessas notícias e, como contingência, serviços públicos de CORS. O proxy local escuta somente em `127.0.0.1`. Todos os detalhes estão em [PRIVACY.md](PRIVACY.md).
+O app acessa apenas os sites cujos feeds você cadastra, os servidores das imagens dessas notícias e, como contingência, serviços públicos de CORS. Se o proxy local falhar, a URL do feed pode ser enviada a `rss2json.com` ou `allorigins.win` como última alternativa — isso está detalhado em [PRIVACY.md](PRIVACY.md). O proxy local escuta somente em `127.0.0.1`.
 
 ## Recursos
 
