@@ -12,14 +12,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      if (globalThis.NL_MODE) {
-        const neutralinoClient = document.createElement("script");
-        neutralinoClient.src = "js/neutralino.js";
-        neutralinoClient.onload = () => globalThis.Neutralino.init();
-        document.body.appendChild(neutralinoClient);
-      }
-    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

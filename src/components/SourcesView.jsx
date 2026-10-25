@@ -3,6 +3,8 @@ import Icon from "./Icon.jsx";
 
 export default function SourcesView({
   sources,
+  totalSources,
+  isFiltered,
   onAddSource,
   onRemoveSource,
   isAddingSource,
@@ -11,6 +13,13 @@ export default function SourcesView({
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [validationError, setValidationError] = useState("");
+
+  const sourceCountLabel =
+    totalSources === 0
+      ? "0 fontes"
+      : isFiltered
+        ? `${sources.length} de ${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`
+        : `${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`;
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -48,12 +57,13 @@ export default function SourcesView({
           <h1>Fontes</h1>
           <p className="feed-subtitle">Gerencie os endereços que gostaria de acompanhar.</p>
         </div>
-        <span className="article-count">{sources.length} {sources.length === 1 ? "fonte" : "fontes"}</span>
+        <span className="article-count">{sourceCountLabel}</span>
       </div>
 
       <div className="sources-notice">
-        Cole o endereço de um site ou, se a descoberta automática falhar, o endereço direto do feed RSS/Atom
-        (por exemplo, https://tecnoblog.net/feed/). A consulta usa o serviço público RSS2JSON, que recebe a URL do feed.
+        Cole o endereço do site (por exemplo, https://tecnoblog.net/) e o Papers News encontra o feed
+        automaticamente. Se preferir, informe o endereço direto do RSS/Atom. O proxy local é iniciado
+        junto com o app, então não depende de serviços públicos.
       </div>
 
       <form className="source-form" onSubmit={handleSubmit}>
@@ -71,7 +81,7 @@ export default function SourcesView({
             <input
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="https://exemplo.com ou /feed/"
+              placeholder="exemplo.com ou https://exemplo.com/feed/"
               type="text"
               inputMode="url"
               required
@@ -91,11 +101,17 @@ export default function SourcesView({
         <h2>Fontes cadastradas</h2>
         <span>Sites e feeds encontrados</span>
       </div>
-      {sources.length === 0 ? (
+      {totalSources === 0 ? (
         <div className="empty-state source-empty">
           <span className="empty-icon"><Icon name="source" /></span>
           <h2>Nenhuma fonte cadastrada</h2>
           <p>Adicione um site para buscar suas publicações.</p>
+        </div>
+      ) : sources.length === 0 ? (
+        <div className="empty-state source-empty">
+          <span className="empty-icon"><Icon name="search" /></span>
+          <h2>Nenhuma fonte encontrada</h2>
+          <p>Tente outro termo de busca.</p>
         </div>
       ) : (
         <ul className="source-list">

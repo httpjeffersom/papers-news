@@ -1,16 +1,30 @@
 import Icon from "./Icon.jsx";
 
-export default function Header({ search, onSearchChange, onRefresh, isRefreshing }) {
+export default function Header({
+  search,
+  onSearchChange,
+  onRefresh,
+  onHome,
+  isRefreshing,
+  isSourcesView,
+}) {
+  const searchPlaceholder = isSourcesView ? "Buscar fonte" : "Buscar no seu feed";
+
   return (
     <header className="topbar">
-      <a className="brand" href="#feed" aria-label="Papers News, início">
+      <button
+        className="brand"
+        type="button"
+        onClick={onHome}
+        aria-label="Papers News, ir para todas as notícias"
+      >
         <span className="brand-mark" aria-hidden="true">
           <span />
           <span />
           <span />
         </span>
         <span className="brand-name">papers<span>news</span></span>
-      </a>
+      </button>
 
       <label className="search-box">
         <Icon name="search" />
@@ -18,8 +32,8 @@ export default function Header({ search, onSearchChange, onRefresh, isRefreshing
           type="search"
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Buscar no seu feed"
-          aria-label="Buscar no seu feed"
+          placeholder={searchPlaceholder}
+          aria-label={searchPlaceholder}
         />
       </label>
 
