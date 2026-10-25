@@ -21,6 +21,7 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 
 - Proxy renomeado para `scripts/feed-proxy.cjs` para ser compatível com o Node.js SEA.
 - Versão do aplicativo atualizada para `0.3.1`.
+- Licença MIT adicionada ao projeto, com `LICENSE` e `THIRD-PARTY-NOTICES.txt` incluídos no pacote para Windows (Node.js, Neutralinojs e React).
 
 ## [0.3.0] - 2026-10-25
 

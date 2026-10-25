@@ -91,7 +91,9 @@ O pacote fica em `dist/` e contém:
 - `papers-news-win_x64.exe` — aplicativo;
 - `papers-news-proxy.exe` — proxy de feeds, iniciado automaticamente pelo app;
 - `resources.neu` — interface compilada;
-- `LEIA-ME.txt` — instruções de uso.
+- `LEIA-ME.txt` — instruções de uso;
+- `LICENSE` — licença MIT do projeto;
+- `THIRD-PARTY-NOTICES.txt` — licenças dos componentes de terceiros (Node.js, Neutralinojs, React).
 
 O comando também gera o arquivo `.sha256` com o checksum do ZIP. O `papers-news-proxy.exe` é gerado a partir do Node.js com [Single Executable Applications](https://nodejs.org/api/single-executable-applications.html), por isso é maior que o executável principal. Mantenha os dois executáveis na mesma pasta.
 
@@ -140,5 +142,5 @@ Consulte também o [CHANGELOG.md](CHANGELOG.md) para ver o que mudou em cada ver
 
 Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para o texto completo.
 
-As bibliotecas de terceiros mantêm suas próprias licenças; consulte `package.json` e `package-lock.json` para a lista de dependências.
+As bibliotecas de terceiros mantêm suas próprias licenças. Os textos completos dos componentes distribuídos no pacote estão em [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt); as dependências de desenvolvimento estão listadas em `package.json` e `package-lock.json`.
 

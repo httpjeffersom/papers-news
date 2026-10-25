@@ -70,6 +70,10 @@ ${"=".repeat(`Papers News ${version}`.length)}
    clique em "Mais informações" > "Executar assim mesmo". O executável
    não possui assinatura digital.
 
+Licenças: este aplicativo é distribuído sob a licença MIT (arquivo
+LICENSE). Os componentes de terceiros e seus textos completos estão em
+THIRD-PARTY-NOTICES.txt.
+
 Requisitos: Windows 10 ou 11 com o Microsoft Edge WebView2 Runtime
 (presente por padrão no Windows 11 e na maioria dos Windows 10).
 
@@ -84,6 +88,11 @@ async function main() {
   assertFile(
     path.join(root, "bin", "neutralino-win_x64.exe"),
     'Execute "npm run desktop:update" para baixar os binarios do Neutralino.',
+  );
+  assertFile(path.join(root, "LICENSE"), "O arquivo LICENSE do projeto nao foi encontrado.");
+  assertFile(
+    path.join(root, "THIRD-PARTY-NOTICES.txt"),
+    "O arquivo THIRD-PARTY-NOTICES.txt nao foi encontrado.",
   );
 
   rmSync(distRoot, { recursive: true, force: true });
@@ -135,6 +144,11 @@ async function main() {
   );
 
   writeFileSync(path.join(bundleDir, "LEIA-ME.txt"), readme, "utf8");
+  copyFileSync(path.join(root, "LICENSE"), path.join(bundleDir, "LICENSE"));
+  copyFileSync(
+    path.join(root, "THIRD-PARTY-NOTICES.txt"),
+    path.join(bundleDir, "THIRD-PARTY-NOTICES.txt"),
+  );
 
   await run(
     "tar",
