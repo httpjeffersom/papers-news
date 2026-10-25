@@ -135,3 +135,10 @@ No app desktop empacotado, o proxy é o `papers-news-proxy.exe` e é iniciado so
 - **Aviso de armazenamento cheio:** remova fontes ou favoritos antigos. O estado do leitor é salvo no `localStorage` com a chave `papers-news:state:v1`.
 
 Consulte também o [CHANGELOG.md](CHANGELOG.md) para ver o que mudou em cada versão.
+
+## Licença
+
+Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para o texto completo.
+
+As bibliotecas de terceiros mantêm suas próprias licenças; consulte `package.json` e `package-lock.json` para a lista de dependências.
+
