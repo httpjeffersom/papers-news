@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import "./neutralino.js";
 import App from "./App.jsx";
 import "./styles/tokens.css";
 import "./styles/global.css";

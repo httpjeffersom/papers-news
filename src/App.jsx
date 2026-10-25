@@ -5,6 +5,7 @@ import NewsFeed from "./components/NewsFeed.jsx";
 import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
+import { ensureDesktopProxy } from "./services/desktopProxy.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
 import { sortArticlesByDateDesc } from "./utils/articleSort.js";
 
@@ -42,6 +43,10 @@ export default function App() {
   const [persistenceError, setPersistenceError] = useState("");
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [sourceError, setSourceError] = useState("");
+
+  useEffect(() => {
+    void ensureDesktopProxy();
+  }, []);
 
   useEffect(() => {
     try {

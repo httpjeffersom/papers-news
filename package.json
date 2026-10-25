@@ -1,15 +1,16 @@
 {
   "name": "papers-news",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node scripts/launch.mjs dev",
     "build": "vite build",
     "preview": "node scripts/launch.mjs preview",
-    "proxy": "node scripts/feed-proxy.mjs",
+    "proxy": "node scripts/feed-proxy.cjs",
     "test": "node --test",
     "desktop": "node scripts/launch.mjs desktop",
+    "desktop:package": "node scripts/package-desktop.mjs",
     "desktop:update": "neu update"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "@neutralinojs/neu": "^11.4.0",
     "@vitejs/plugin-react": "^4.3.4",
     "@xmldom/xmldom": "^0.9.12",
+    "postject": "^1.0.0-alpha.6",
     "vite": "^6.0.5"
   }
 }

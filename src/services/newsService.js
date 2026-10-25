@@ -6,6 +6,7 @@ import {
   resolveHttpUrl,
 } from "./feedParser.js";
 import { sortArticlesByDateDesc } from "../utils/articleSort.js";
+import { ensureDesktopProxy } from "./desktopProxy.js";
 
 const localProxyBaseUrl = (
   import.meta.env?.VITE_FEED_PROXY_URL || "http://127.0.0.1:8787"
@@ -71,6 +72,11 @@ export async function isLocalProxyAvailable() {
     proxyState.available = false;
   }
   proxyState.checkedAt = Date.now();
+
+  if (!proxyState.available && (await ensureDesktopProxy())) {
+    proxyState.available = true;
+  }
+
   return proxyState.available;
 }
 

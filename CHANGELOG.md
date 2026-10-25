@@ -2,6 +2,26 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.3.1] - 2026-10-25
+
+### Adicionado
+
+- Pacote para Windows com `npm run desktop:package`, gerando `papers-news-0.3.1-win_x64.zip` com o aplicativo, o proxy de feeds, `resources.neu`, instruções e checksum SHA-256.
+- Proxy de feeds também distribuído como executável próprio (`papers-news-proxy.exe`), gerado com Node.js Single Executable Applications.
+- Release no GitHub com o ZIP para Windows.
+
+### Corrigido
+
+- O app desktop não carregava o cliente do Neutralino (`NL_MODE` não é definido nesta versão), impedindo o uso da API nativa e o início automático do proxy.
+- O proxy de feeds agora é iniciado automaticamente pelo app desktop quando necessário.
+- Dados do desktop passam a persistir entre execuções: a porta local é fixa (`51789`), mantendo o mesmo endereço de origem do `localStorage`.
+- A build do pacote limpa `.tmp` antes de empacotar, evitando incluir arquivos temporários no `resources.neu`.
+
+### Alterado
+
+- Proxy renomeado para `scripts/feed-proxy.cjs` para ser compatível com o Node.js SEA.
+- Versão do aplicativo atualizada para `0.3.1`.
+
 ## [0.3.0] - 2026-10-25
 
 ### Adicionado

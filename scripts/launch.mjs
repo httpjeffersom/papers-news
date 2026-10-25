@@ -94,7 +94,7 @@ async function main() {
   if (await isProxyRunning()) {
     console.log(`Proxy de feeds já está ativo em ${proxyBaseUrl}`);
   } else {
-    proxyProcess = spawn(node, [path.join(root, "scripts", "feed-proxy.mjs")], {
+    proxyProcess = spawn(node, [path.join(root, "scripts", "feed-proxy.cjs")], {
       cwd: root,
       stdio: "inherit",
       env: process.env,

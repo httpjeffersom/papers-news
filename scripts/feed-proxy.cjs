@@ -1,4 +1,4 @@
-import http from "node:http";
+const http = require("node:http");
 
 const HOST = process.env.FEED_PROXY_HOST || "127.0.0.1";
 const PORT = Number(process.env.FEED_PROXY_PORT || 8787);
@@ -6,7 +6,7 @@ const ALLOW_PRIVATE_HOSTS = process.env.FEED_PROXY_ALLOW_PRIVATE === "1";
 const REQUEST_TIMEOUT_MS = 25000;
 const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.3.0";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.3.1";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -163,7 +163,7 @@ const server = http.createServer(async (request, response) => {
   const requestUrl = new URL(request.url || "/", `http://${HOST}:${PORT}`);
 
   if (requestUrl.pathname === "/health") {
-    sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.3.0" });
+    sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.3.1" });
     return;
   }
 
