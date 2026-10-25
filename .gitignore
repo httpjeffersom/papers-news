@@ -1,6 +1,8 @@
 node_modules/
 resources/
 dist/
+bin/
+.tmp/
 .DS_Store
 Thumbs.db
 *.log

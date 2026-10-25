@@ -6,6 +6,29 @@ import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
+import { sortArticlesByDateDesc } from "./utils/articleSort.js";
+
+const maxRefreshFailuresShown = 3;
+
+function isStorageQuotaError(error) {
+  return (
+    error?.name === "QuotaExceededError" ||
+    error?.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    error?.code === 22 ||
+    error?.code === 1014
+  );
+}
+
+function formatRefreshFailures(errors) {
+  const shownFailures = errors
+    .slice(0, maxRefreshFailuresShown)
+    .map((failure) => `${failure.sourceName}: ${failure.message}`)
+    .join("; ");
+  const remaining = errors.length - maxRefreshFailuresShown;
+
+  if (remaining <= 0) return shownFailures;
+  return `${shownFailures}; e mais ${remaining} ${remaining === 1 ? "fonte" : "fontes"}`;
+}
 
 export default function App() {
   const [initialState] = useState(loadAppState);
@@ -26,21 +49,38 @@ export default function App() {
       setPersistenceError("");
     } catch (error) {
       console.error("Não foi possível salvar os dados do Papers News:", error);
-      setPersistenceError("Não foi possível salvar suas alterações neste dispositivo.");
+      setPersistenceError(
+        isStorageQuotaError(error)
+          ? "O armazenamento local está cheio. Remova fontes ou favoritos para liberar espaço."
+          : "Não foi possível salvar suas alterações neste dispositivo.",
+      );
     }
   }, [articles, savedIds, sources]);
 
   const visibleArticles = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
-    return articles
-      .filter((article) => activeView !== "favorites" || savedIds.includes(article.id))
-      .filter((article) => {
-        if (!normalizedSearch) return true;
-        const searchableText = `${article.title} ${article.summary} ${article.sourceName}`;
-        return searchableText.toLocaleLowerCase("pt-BR").includes(normalizedSearch);
-      })
-      .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+    return sortArticlesByDateDesc(
+      articles
+        .filter((article) => activeView !== "favorites" || savedIds.includes(article.id))
+        .filter((article) => {
+          if (!normalizedSearch) return true;
+          const searchableText = `${article.title} ${article.summary} ${article.sourceName}`;
+          return searchableText.toLocaleLowerCase("pt-BR").includes(normalizedSearch);
+        }),
+    );
   }, [activeView, articles, savedIds, search]);
+
+  const visibleSources = useMemo(() => {
+    if (activeView !== "sources") return sources;
+
+    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+    if (!normalizedSearch) return sources;
+
+    return sources.filter((source) => {
+      const searchableText = `${source.name} ${source.url} ${source.feedUrl ?? ""}`;
+      return searchableText.toLocaleLowerCase("pt-BR").includes(normalizedSearch);
+    });
+  }, [activeView, search, sources]);
 
   async function handleRefresh() {
     setIsRefreshing(true);
@@ -49,11 +89,8 @@ export default function App() {
       const result = await refreshNews(sources, articles, savedIds);
       setArticles(result.articles);
       if (result.errors.length > 0) {
-        const failedSources = result.errors
-          .map((failure) => `${failure.sourceName}: ${failure.message}`)
-          .join("; ");
         setRefreshError(
-          `Atualização parcial. Não foi possível atualizar: ${failedSources}. Notícias antigas permanecem disponíveis quando há cache.`,
+          `Atualização parcial. Não foi possível atualizar: ${formatRefreshFailures(result.errors)}. Notícias antigas permanecem disponíveis quando há cache.`,
         );
       }
     } catch (error) {
@@ -108,7 +145,20 @@ export default function App() {
     );
   }
 
+  function goHome() {
+    setActiveView("all");
+    setSearch("");
+    const prefersReducedMotion =
+      globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
+    globalThis.scrollTo?.({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }
+
   const isSourcesView = activeView === "sources";
+  const isDemoMode =
+    sources.length > 0 && sources.every((source) => source.isDemo);
 
   return (
     <div className="app-shell">
@@ -116,10 +166,17 @@ export default function App() {
         search={search}
         onSearchChange={setSearch}
         onRefresh={handleRefresh}
+        onHome={goHome}
         isRefreshing={isRefreshing}
+        isSourcesView={isSourcesView}
       />
       <div className="workspace">
-        <Navigation activeView={activeView} onChange={setActiveView} />
+        <Navigation
+          activeView={activeView}
+          sourceCount={sources.length}
+          isDemoMode={isDemoMode}
+          onChange={setActiveView}
+        />
         <main className="main-content">
           {persistenceError && (
             <div className="error-state persistence-error" role="alert">
@@ -128,7 +185,9 @@ export default function App() {
           )}
           {isSourcesView ? (
             <SourcesView
-              sources={sources}
+              sources={visibleSources}
+              totalSources={sources.length}
+              isFiltered={search.trim() !== ""}
               onAddSource={addSource}
               onRemoveSource={removeSource}
               isAddingSource={isAddingSource}

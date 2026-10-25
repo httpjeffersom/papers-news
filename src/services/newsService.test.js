@@ -92,3 +92,94 @@ test("updates available sources while retaining failed and saved articles", asyn
     assert.match(result.errors[0].message, /HTTP 503/);
   });
 });
+
+test("returns cached articles instead of demo content when there are no real sources", async () => {
+  const cached = [
+    makeArticle("older", "source-1", "Older"),
+    {
+      ...makeArticle("newer", "source-1", "Newer"),
+      publishedAt: "2026-03-01T00:00:00.000Z",
+    },
+  ];
+
+  const result = await refreshNews(
+    [{ id: "source-demo", name: "Demo", url: "https://example.com", isDemo: true }],
+    cached,
+    [],
+  );
+
+  assert.deepEqual(result.articles.map((article) => article.id), ["newer", "older"]);
+  assert.deepEqual(result.errors, []);
+});
+
+test("treats an empty feed as a successful refresh", async () => {
+  await withMockedFeedRequests(async () => {
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        status: "ok",
+        feed: { title: "Empty News" },
+        items: [],
+      }),
+    });
+
+    const result = await refreshNews(
+      [{
+        id: "empty",
+        name: "Empty News",
+        url: "https://empty.example",
+        feedUrl: "https://empty.example/feed",
+        isDemo: false,
+      }],
+      [makeArticle("cached", "empty")],
+      [],
+    );
+
+    assert.deepEqual(result.articles, []);
+    assert.deepEqual(result.errors, []);
+  });
+});
+
+test("normalizes missing dates, relative images, initials, and duplicate links", async () => {
+  await withMockedFeedRequests(async () => {
+    globalThis.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        status: "ok",
+        feed: { title: "Caderno de Tecnologia" },
+        items: [
+          {
+            title: "Publicação sem data",
+            link: "https://news.example/post-1",
+            pubDate: "data-invalida",
+            description: "<p>Resumo</p>",
+            thumbnail: "/img/1.jpg",
+          },
+          {
+            title: "Link repetido",
+            link: "https://news.example/post-1",
+            pubDate: "2026-01-01T00:00:00.000Z",
+          },
+        ],
+      }),
+    });
+
+    const result = await refreshNews(
+      [{
+        id: "news",
+        name: "Caderno de Tecnologia",
+        url: "https://news.example",
+        feedUrl: "https://news.example/feed",
+        isDemo: false,
+      }],
+      [],
+      [],
+    );
+
+    assert.equal(result.articles.length, 1);
+    const [article] = result.articles;
+    assert.equal(article.publishedAt, "");
+    assert.equal(article.image, "https://news.example/img/1.jpg");
+    assert.equal(article.sourceInitials, "CT");
+  });
+});

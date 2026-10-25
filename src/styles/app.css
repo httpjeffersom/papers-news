@@ -27,7 +27,12 @@
   width: fit-content;
   align-items: center;
   gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
   text-decoration: none;
 }
 
@@ -256,6 +261,11 @@
   border-radius: 50%;
   background: #52a879;
   box-shadow: 0 0 0 3px #e8f3ec;
+}
+
+.sidebar-note:not(.is-live) .status-dot {
+  background: #b5b5ba;
+  box-shadow: 0 0 0 3px #f0f0f2;
 }
 
 .main-content {

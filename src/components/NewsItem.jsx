@@ -4,6 +4,8 @@ import { openExternalUrl } from "../services/desktop.js";
 
 function formatPublishedAt(value) {
   const publishedAt = new Date(value);
+  if (Number.isNaN(publishedAt.getTime())) return "";
+
   const date = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
@@ -18,6 +20,11 @@ function formatPublishedAt(value) {
 
 export default function NewsItem({ article, isSaved, onToggleSaved }) {
   const [openError, setOpenError] = useState("");
+  const [imageFailed, setImageFailed] = useState(false);
+  const publishedAtLabel = formatPublishedAt(article.publishedAt);
+  const sourceInitials =
+    article.sourceInitials ||
+    article.sourceName.slice(0, 2).toLocaleUpperCase("pt-BR");
 
   async function handleOpen() {
     setOpenError("");
@@ -32,15 +39,28 @@ export default function NewsItem({ article, isSaved, onToggleSaved }) {
   return (
     <article className="news-item">
       <div className="article-meta">
-        <span className="source-avatar">{article.sourceInitials}</span>
+        <span className="source-avatar">{sourceInitials}</span>
         <span className="source-name">{article.sourceName}</span>
         <span className="meta-divider" />
-        <time dateTime={article.publishedAt}>{formatPublishedAt(article.publishedAt)}</time>
+        {publishedAtLabel ? (
+          <time dateTime={article.publishedAt}>{publishedAtLabel}</time>
+        ) : (
+          <span className="meta-unknown">Data desconhecida</span>
+        )}
         {article.isDemo && <span className="demo-tag">DEMO</span>}
       </div>
 
       <h2 className="article-title">{article.title}</h2>
-      {article.image && <img className="article-image" src={article.image} alt="" />}
+      {article.image && !imageFailed && (
+        <img
+          className="article-image"
+          src={article.image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      )}
       <p className="article-summary">{article.summary}</p>
 
       <div className="article-actions">

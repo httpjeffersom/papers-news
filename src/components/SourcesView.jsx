@@ -3,6 +3,8 @@ import Icon from "./Icon.jsx";
 
 export default function SourcesView({
   sources,
+  totalSources,
+  isFiltered,
   onAddSource,
   onRemoveSource,
   isAddingSource,
@@ -11,6 +13,13 @@ export default function SourcesView({
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [validationError, setValidationError] = useState("");
+
+  const sourceCountLabel =
+    totalSources === 0
+      ? "0 fontes"
+      : isFiltered
+        ? `${sources.length} de ${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`
+        : `${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`;
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -48,7 +57,7 @@ export default function SourcesView({
           <h1>Fontes</h1>
           <p className="feed-subtitle">Gerencie os endereços que gostaria de acompanhar.</p>
         </div>
-        <span className="article-count">{sources.length} {sources.length === 1 ? "fonte" : "fontes"}</span>
+        <span className="article-count">{sourceCountLabel}</span>
       </div>
 
       <div className="sources-notice">
@@ -91,11 +100,17 @@ export default function SourcesView({
         <h2>Fontes cadastradas</h2>
         <span>Sites e feeds encontrados</span>
       </div>
-      {sources.length === 0 ? (
+      {totalSources === 0 ? (
         <div className="empty-state source-empty">
           <span className="empty-icon"><Icon name="source" /></span>
           <h2>Nenhuma fonte cadastrada</h2>
           <p>Adicione um site para buscar suas publicações.</p>
+        </div>
+      ) : sources.length === 0 ? (
+        <div className="empty-state source-empty">
+          <span className="empty-icon"><Icon name="search" /></span>
+          <h2>Nenhuma fonte encontrada</h2>
+          <p>Tente outro termo de busca.</p>
         </div>
       ) : (
         <ul className="source-list">

@@ -6,7 +6,20 @@ const items = [
   { id: "sources", label: "Fontes", icon: "source" },
 ];
 
-export default function Navigation({ activeView, onChange }) {
+export default function Navigation({
+  activeView,
+  sourceCount,
+  isDemoMode,
+  onChange,
+}) {
+  const isLive = sourceCount > 0 && !isDemoMode;
+  const sourceLabel =
+    sourceCount === 0
+      ? "Nenhuma fonte conectada"
+      : isDemoMode
+        ? "Modo demonstração"
+        : `${sourceCount} ${sourceCount === 1 ? "fonte conectada" : "fontes conectadas"}`;
+
   return (
     <aside className="sidebar" aria-label="Navegação principal">
       <p className="sidebar-label">SEU ESPAÇO</p>
@@ -25,9 +38,9 @@ export default function Navigation({ activeView, onChange }) {
           </button>
         ))}
       </nav>
-      <div className="sidebar-note">
+      <div className={`sidebar-note${isLive ? " is-live" : ""}`}>
         <span className="status-dot" />
-        <span>Modo demonstração</span>
+        <span>{sourceLabel}</span>
       </div>
     </aside>
   );

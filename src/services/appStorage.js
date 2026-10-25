@@ -25,6 +25,8 @@ function isStoredArticle(article) {
     typeof article.summary === "string" &&
     typeof article.publishedAt === "string" &&
     typeof article.url === "string" &&
+    (article.sourceInitials === undefined || typeof article.sourceInitials === "string") &&
+    (article.image === undefined || typeof article.image === "string") &&
     typeof article.isDemo === "boolean"
   );
 }

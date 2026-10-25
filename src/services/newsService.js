@@ -1,11 +1,70 @@
-import { demoArticles } from "../data/demoArticles.js";
+import { sortArticlesByDateDesc } from "../utils/articleSort.js";
 
 const proxyUrl = "https://api.allorigins.win/raw?url=";
 const rssProxyUrl = "https://api.rss2json.com/v1/api.json?rss_url=";
 const maxArticlesPerFeed = 30;
+const nameConnectors = new Set([
+  "a",
+  "as",
+  "o",
+  "os",
+  "de",
+  "da",
+  "das",
+  "do",
+  "dos",
+  "e",
+  "em",
+  "the",
+  "of",
+  "and",
+]);
 
 function proxiedUrl(url) {
   return `${proxyUrl}${encodeURIComponent(url)}`;
+}
+
+function resolveImageUrl(value, baseUrl) {
+  if (typeof value !== "string" || !value.trim()) return "";
+
+  let url;
+  try {
+    url = new URL(value.trim(), baseUrl);
+  } catch {
+    try {
+      url = new URL(value.trim());
+    } catch {
+      return "";
+    }
+  }
+
+  return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+}
+
+function getInitials(name) {
+  const words = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+
+  const meaningfulWords = words.filter(
+    (word) => !nameConnectors.has(word.toLocaleLowerCase("pt-BR")),
+  );
+  const sourceWords = meaningfulWords.length > 0 ? meaningfulWords : words;
+
+  if (sourceWords.length === 1) {
+    return sourceWords[0].slice(0, 2).toLocaleUpperCase("pt-BR");
+  }
+
+  return `${sourceWords[0][0]}${sourceWords[1][0]}`.toLocaleUpperCase("pt-BR");
+}
+
+function sourceLabel(source) {
+  if (source.name) return source.name;
+
+  try {
+    return new URL(source.url).hostname;
+  } catch {
+    return "Fonte desconhecida";
+  }
 }
 
 async function fetchText(url) {
@@ -27,30 +86,52 @@ async function fetchFeed(feedUrl, source) {
     throw new Error(data.message || "O serviço não conseguiu ler este feed RSS/Atom.");
   }
 
-  const sourceName = source.name || data.feed?.title || new URL(source.url).hostname;
-  const articles = (data.items || []).slice(0, maxArticlesPerFeed).flatMap((item) => {
-    if (!item.title || !item.link) return [];
+  let hostname = "";
+  try {
+    hostname = new URL(source.url).hostname;
+  } catch {
+    hostname = "";
+  }
 
-    const publishedAt = Date.parse(item.pubDate);
-    const image = item.thumbnail || item.enclosure?.link || "";
-    return [{
+  const sourceName =
+    source.name || data.feed?.title || hostname || "Fonte desconhecida";
+  const seenLinks = new Set();
+  const articles = [];
+
+  for (const item of (data.items || []).slice(0, maxArticlesPerFeed)) {
+    if (
+      typeof item.title !== "string" ||
+      typeof item.link !== "string" ||
+      !item.title ||
+      !item.link ||
+      seenLinks.has(item.link)
+    ) {
+      continue;
+    }
+
+    seenLinks.add(item.link);
+    const publishedAt = Date.parse(
+      typeof item.pubDate === "string" ? item.pubDate : "",
+    );
+    const image = resolveImageUrl(
+      item.thumbnail || item.enclosure?.link,
+      item.link || feedUrl,
+    );
+
+    articles.push({
       id: `${source.id}:${item.link}`,
       sourceId: source.id,
       sourceName,
-      sourceInitials: sourceName.slice(0, 2).toLocaleUpperCase("pt-BR"),
+      sourceInitials: getInitials(sourceName),
       title: plainText(item.title),
       summary: plainText(item.description || item.content || ""),
       publishedAt: Number.isNaN(publishedAt)
-        ? new Date().toISOString()
+        ? ""
         : new Date(publishedAt).toISOString(),
       image,
       url: item.link,
       isDemo: false,
-    }];
-  });
-
-  if (articles.length === 0) {
-    throw new Error("O feed foi encontrado, mas não contém publicações válidas.");
+    });
   }
 
   return {
@@ -64,6 +145,7 @@ function localName(element) {
 }
 
 function plainText(value) {
+  if (typeof value !== "string") return "";
   const document = new DOMParser().parseFromString(value, "text/html");
   return document.body.textContent?.replace(/\s+/g, " ").trim() ?? "";
 }
@@ -156,11 +238,8 @@ export async function discoverAndFetchSource({ name, url }) {
 export async function refreshNews(sources = [], cachedArticles = [], savedIds = []) {
   const activeSources = sources.filter((source) => !source.isDemo);
   if (activeSources.length === 0) {
-    await new Promise((resolve) => window.setTimeout(resolve, 450));
     return {
-      articles: [...demoArticles].sort(
-        (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
-      ),
+      articles: sortArticlesByDateDesc(cachedArticles),
       errors: [],
     };
   }
@@ -194,7 +273,7 @@ export async function refreshNews(sources = [], cachedArticles = [], savedIds = 
 
     const source = activeSources[index];
     errors.push({
-      sourceName: source.name || new URL(source.url).hostname,
+      sourceName: sourceLabel(source),
       message: result.reason instanceof Error
         ? result.reason.message
         : String(result.reason),
@@ -205,9 +284,7 @@ export async function refreshNews(sources = [], cachedArticles = [], savedIds = 
   });
 
   return {
-    articles: articles.sort(
-      (a, b) => new Date(b.publishedAt) - new Date(a.publishedAt),
-    ),
+    articles: sortArticlesByDateDesc(articles),
     errors,
   };
 }
