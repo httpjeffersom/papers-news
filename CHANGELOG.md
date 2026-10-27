@@ -2,12 +2,27 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
-## [Não lançado]
+## [0.4.0] - 2026-10-27
 
 ### Adicionado
 
+- Interface redesenhada com Fluent Design (Windows 11): tipografia Segoe UI Variable, controles de 4 px, cartões de 8 px, acrílico na barra superior e indicador de seleção na navegação.
+- Tema claro ou escuro, com a escolha lembrada entre execuções.
+- Alternador de tema segmentado na barra superior, acessível por teclado.
 - Política de privacidade em [PRIVACY.md](PRIVACY.md): todos os dados ficam no dispositivo, sem telemetria, com detalhes sobre o que sai do dispositivo, limites do uso offline e como apagar os dados.
 - Destaque de privacidade e de código aberto (MIT) no README, com badges e resumo no topo.
+
+### Alterado
+
+- As notícias passam a ser exibidas em cartões, no lugar da lista com divisórias.
+- Cabeçalho do feed mais direto: apenas o título, com "em ordem cronológica" ao lado.
+- Os textos aproveitam toda a largura do cartão, e a coluna de leitura passou de 840 px para 1000 px.
+- O indicador de status ao lado da contagem de fontes foi removido.
+- Fonte e Informações passam a usar InfoBars e cartões do Fluent.
+
+### Removido
+
+- O modo de tema automático: a interface tem apenas os modos claro e escuro.
 
 ## [0.3.1] - 2026-10-25
 

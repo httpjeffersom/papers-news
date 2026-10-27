@@ -15,13 +15,10 @@ export default function NewsFeed({
   return (
     <section className="feed-section" aria-label={isFavorites ? "Notícias favoritas" : "Feed de notícias"}>
       <div className="feed-heading">
-        <div>
-          <p className="eyebrow">{isFavorites ? "SUA COLEÇÃO" : "SEU RESUMO DIÁRIO"}</p>
+        <div className="feed-heading-main">
           <h1>{isFavorites ? "Favoritos" : "Seu feed"}</h1>
-          <p className="feed-subtitle">
-            {isFavorites
-              ? "Publicações que você guardou para ler depois."
-              : "Uma leitura tranquila, em ordem cronológica."}
+          <p className="feed-note">
+            {isFavorites ? "guardadas para ler depois" : "em ordem cronológica"}
           </p>
         </div>
         <span className="article-count">

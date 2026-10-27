@@ -1,4 +1,5 @@
 import Icon from "./Icon.jsx";
+import ThemeSwitcher from "./ThemeSwitcher.jsx";
 
 export default function Header({
   search,
@@ -7,6 +8,8 @@ export default function Header({
   onHome,
   isRefreshing,
   isSourcesView,
+  theme,
+  onThemeChange,
 }) {
   const searchPlaceholder = isSourcesView ? "Buscar fonte" : "Buscar no seu feed";
 
@@ -16,7 +19,7 @@ export default function Header({
         className="brand"
         type="button"
         onClick={onHome}
-        aria-label="Papers News, ir para todas as notícias"
+        aria-label="papersnews, ir para todas as notícias"
       >
         <span className="brand-mark" aria-hidden="true">
           <span />
@@ -37,16 +40,19 @@ export default function Header({
         />
       </label>
 
-      <button
-        className={`refresh-button${isRefreshing ? " is-refreshing" : ""}`}
-        type="button"
-        onClick={onRefresh}
-        disabled={isRefreshing}
-        aria-label={isRefreshing ? "Atualizando feed" : "Atualizar feed"}
-      >
-        <Icon name="refresh" />
-        <span>{isRefreshing ? "Atualizando" : "Atualizar"}</span>
-      </button>
+      <div className="topbar-actions">
+        <ThemeSwitcher theme={theme} onChange={onThemeChange} />
+        <button
+          className={`refresh-button${isRefreshing ? " is-refreshing" : ""}`}
+          type="button"
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          aria-label={isRefreshing ? "Atualizando feed" : "Atualizar feed"}
+        >
+          <Icon name="refresh" />
+          <span>{isRefreshing ? "Atualizando" : "Atualizar"}</span>
+        </button>
+      </div>
     </header>
   );
 }

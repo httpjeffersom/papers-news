@@ -29,6 +29,7 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Fontes, notícias em cache e favoritos preservados no armazenamento local.
 - Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
+- Interface Fluent Design (Windows 11), com tema claro ou escuro.
 - Interface responsiva em português, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
 

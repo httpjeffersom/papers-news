@@ -9,6 +9,8 @@ const paths = {
   plus: <><path d="M12 5v14" /><path d="M5 12h14" /></>,
   trash: <><path d="M4 7h16" /><path d="M10 11v6M14 11v6" /><path d="m6 7 1 13h10l1-13M9 7V4h6v3" /></>,
   check: <path d="m5 12 4 4L19 6" />,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" /></>,
+  moon: <path d="M20.2 14.3A8.5 8.5 0 0 1 9.7 3.8 8.5 8.5 0 1 0 20.2 14.3Z" />,
 };
 
 export default function Icon({ name, className = "" }) {

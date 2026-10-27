@@ -3,12 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="theme-color" content="#f3f3f3" />
     <meta
       name="description"
       content="Papers News — um espaço pessoal para acompanhar notícias."
     />
     <title>Papers News</title>
+    <script>
+      // Aplica o tema antes da primeira pintura para evitar um flash branco
+      // ao abrir o app no tema escuro. A chave é a mesma de theme.js.
+      (() => {
+        try {
+          const stored = localStorage.getItem("papers-news:theme:v1");
+          // Valores desconhecidos (ou o antigo "system") caem no tema claro.
+          const theme = stored === "dark" ? "dark" : "light";
+          const root = document.documentElement;
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          document
+            .querySelector('meta[name="theme-color"]')
+            .setAttribute("content", theme === "dark" ? "#1f1f1f" : "#f3f3f3");
+        } catch {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation.jsx";
 import NewsFeed from "./components/NewsFeed.jsx";
 import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
+import { useTheme } from "./hooks/useTheme.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { ensureDesktopProxy } from "./services/desktopProxy.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
@@ -33,6 +34,7 @@ function formatRefreshFailures(errors) {
 
 export default function App() {
   const [initialState] = useState(loadAppState);
+  const { theme, setTheme } = useTheme();
   const [activeView, setActiveView] = useState("all");
   const [search, setSearch] = useState("");
   const [savedIds, setSavedIds] = useState(() => initialState?.savedIds ?? []);
@@ -174,6 +176,8 @@ export default function App() {
         onHome={goHome}
         isRefreshing={isRefreshing}
         isSourcesView={isSourcesView}
+        theme={theme}
+        onThemeChange={setTheme}
       />
       <div className="workspace">
         <Navigation

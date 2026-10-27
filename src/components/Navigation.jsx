@@ -12,7 +12,6 @@ export default function Navigation({
   isDemoMode,
   onChange,
 }) {
-  const isLive = sourceCount > 0 && !isDemoMode;
   const sourceLabel =
     sourceCount === 0
       ? "Nenhuma fonte conectada"
@@ -34,14 +33,10 @@ export default function Navigation({
           >
             <Icon name={item.icon} />
             <span>{item.label}</span>
-            {item.id === "favorites" && <span className="nav-accent" />}
           </button>
         ))}
       </nav>
-      <div className={`sidebar-note${isLive ? " is-live" : ""}`}>
-        <span className="status-dot" />
-        <span>{sourceLabel}</span>
-      </div>
+      <p className="sidebar-note">{sourceLabel}</p>
     </aside>
   );
 }
