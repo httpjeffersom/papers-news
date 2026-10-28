@@ -54,8 +54,10 @@ export default function SourcesView({
       <div className="feed-heading">
         <div>
           <p className="eyebrow">PERSONALIZE SEU FEED</p>
-          <h1>Fontes</h1>
-          <p className="feed-subtitle">Gerencie os endereços que gostaria de acompanhar.</p>
+          <div className="feed-heading-main">
+            <h1>Fontes</h1>
+            <p className="feed-note">os sites que você acompanha</p>
+          </div>
         </div>
         <span className="article-count">{sourceCountLabel}</span>
       </div>

@@ -4,6 +4,7 @@ const items = [
   { id: "all", label: "Todas as notícias", icon: "feed" },
   { id: "favorites", label: "Favoritos", icon: "bookmark" },
   { id: "sources", label: "Fontes", icon: "source" },
+  { id: "settings", label: "Configurações", icon: "settings" },
 ];
 
 export default function Navigation({

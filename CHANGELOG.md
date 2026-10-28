@@ -2,6 +2,22 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.5.0] - 2026-10-28
+
+### Adicionado
+
+- Aba **Configurações** no menu do seu espaço, com ícone e nome, reunindo as preferências do aplicativo.
+- Tema claro ou escuro movido para Configurações, em um controle segmentado com rótulos.
+- Tamanho do texto em cinco níveis (Pequeno, Padrão, Médio, Grande e Maior), com barra deslizante e pré-visualização que acompanha a escolha. A preferência é lembrada entre execuções.
+- **Ler aqui:** modo de leitura dentro do app no estilo Instapaper, com página branca e texto escuro (ou escura com texto claro no tema escuro), sem menus e anúncios. O botão aparece antes de "Abrir publicação".
+- Extração do conteúdo principal da página original quando o feed traz apenas o resumo, com sanitização de scripts, formulários e links inseguros.
+- Pequeno slogan ao lado de "Fontes", no mesmo padrão de Favoritos e do feed.
+
+### Alterado
+
+- O botão **Atualizar** agora usa o azul de destaque do Fluent.
+- Na aba Favoritos, o subtítulo passou a ser "guardados para ler depois".
+
 ## [0.4.1] - 2026-10-28
 
 ### Corrigido

@@ -8,6 +8,7 @@ export default function NewsFeed({
   isRefreshing,
   refreshError,
   onToggleSaved,
+  onReadArticle,
 }) {
   const isFavorites = activeView === "favorites";
   const hasDemoArticles = articles.some((article) => article.isDemo);
@@ -18,7 +19,7 @@ export default function NewsFeed({
         <div className="feed-heading-main">
           <h1>{isFavorites ? "Favoritos" : "Seu feed"}</h1>
           <p className="feed-note">
-            {isFavorites ? "guardadas para ler depois" : "em ordem cronológica"}
+            {isFavorites ? "guardados para ler depois" : "em ordem cronológica"}
           </p>
         </div>
         <span className="article-count">
@@ -68,6 +69,7 @@ export default function NewsFeed({
               key={article.id}
               isSaved={savedIds.includes(article.id)}
               onToggleSaved={onToggleSaved}
+              onRead={onReadArticle}
             />
           ))
         )}

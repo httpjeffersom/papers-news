@@ -1,6 +1,7 @@
 import {
   getInitials,
   maxArticlesPerFeed,
+  maxStoredContentLength,
   parseFeedXml,
   plainText,
   resolveHttpUrl,
@@ -177,6 +178,10 @@ async function fetchFeedViaRss2Json(feedUrl, source) {
         : new Date(publishedAt).toISOString(),
       image,
       url: item.link,
+      content: (item.content || item.description || "").slice(
+        0,
+        maxStoredContentLength,
+      ),
       isDemo: false,
     });
   }
@@ -531,6 +536,11 @@ export async function discoverAndFetchSource({ name, url }) {
   throw new Error(
     `Não encontrei um feed RSS/Atom em ${pageUrl}. Verifique se o site publica um feed ou informe o endereço direto dele (por exemplo, ${new URL("/feed/", pageUrl).href}).`,
   );
+}
+
+export async function fetchArticleHtml(url) {
+  const { text } = await fetchTextViaBestTransport(url, requestTimeoutMs);
+  return text;
 }
 
 async function fetchTextViaBestTransport(url, timeout) {

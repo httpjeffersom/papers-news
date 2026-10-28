@@ -1,11 +1,11 @@
 import Icon from "./Icon.jsx";
 
 const options = [
-  { value: "light", label: "Tema claro", icon: "sun" },
-  { value: "dark", label: "Tema escuro", icon: "moon" },
+  { value: "light", label: "Claro", icon: "sun" },
+  { value: "dark", label: "Escuro", icon: "moon" },
 ];
 
-export default function ThemeSwitcher({ theme, onChange }) {
+export default function ThemeSwitcher({ theme, onChange, showLabels = false }) {
   function handleKeyDown(event) {
     const currentIndex = options.findIndex((option) => option.value === theme);
     let nextIndex = null;
@@ -28,7 +28,7 @@ export default function ThemeSwitcher({ theme, onChange }) {
 
   return (
     <div
-      className="theme-switcher"
+      className={`theme-switcher${showLabels ? " has-labels" : ""}`}
       role="radiogroup"
       aria-label="Tema da interface"
       onKeyDown={handleKeyDown}
@@ -42,12 +42,13 @@ export default function ThemeSwitcher({ theme, onChange }) {
             type="button"
             role="radio"
             aria-checked={isChecked}
-            aria-label={option.label}
-            title={option.label}
+            aria-label={`Tema ${option.label.toLocaleLowerCase("pt-BR")}`}
+            title={`Tema ${option.label.toLocaleLowerCase("pt-BR")}`}
             tabIndex={isChecked ? 0 : -1}
             onClick={() => onChange(option.value)}
           >
             <Icon name={option.icon} />
+            {showLabels && <span>{option.label}</span>}
           </button>
         );
       })}

@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import ArticleReader from "./components/ArticleReader.jsx";
 import Header from "./components/Header.jsx";
 import Navigation from "./components/Navigation.jsx";
 import NewsFeed from "./components/NewsFeed.jsx";
+import SettingsView from "./components/SettingsView.jsx";
 import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
+import { useFontSize } from "./hooks/useFontSize.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { ensureDesktopProxy } from "./services/desktopProxy.js";
@@ -35,7 +38,9 @@ function formatRefreshFailures(errors) {
 export default function App() {
   const [initialState] = useState(loadAppState);
   const { theme, setTheme } = useTheme();
+  const { fontSize, setFontSize } = useFontSize();
   const [activeView, setActiveView] = useState("all");
+  const [readingArticle, setReadingArticle] = useState(null);
   const [search, setSearch] = useState("");
   const [savedIds, setSavedIds] = useState(() => initialState?.savedIds ?? []);
   const [sources, setSources] = useState(() => initialState?.sources ?? demoSources);
@@ -155,6 +160,16 @@ export default function App() {
   function goHome() {
     setActiveView("all");
     setSearch("");
+    scrollToTop();
+  }
+
+  function goToView(view) {
+    setActiveView(view);
+    setSearch("");
+    scrollToTop();
+  }
+
+  function scrollToTop() {
     const prefersReducedMotion =
       globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
     globalThis.scrollTo?.({
@@ -164,6 +179,7 @@ export default function App() {
   }
 
   const isSourcesView = activeView === "sources";
+  const isSettingsView = activeView === "settings";
   const isDemoMode =
     sources.length > 0 && sources.every((source) => source.isDemo);
 
@@ -176,15 +192,14 @@ export default function App() {
         onHome={goHome}
         isRefreshing={isRefreshing}
         isSourcesView={isSourcesView}
-        theme={theme}
-        onThemeChange={setTheme}
+        isSettingsView={isSettingsView}
       />
       <div className="workspace">
         <Navigation
           activeView={activeView}
           sourceCount={sources.length}
           isDemoMode={isDemoMode}
-          onChange={setActiveView}
+          onChange={goToView}
         />
         <main className="main-content">
           {persistenceError && (
@@ -192,7 +207,14 @@ export default function App() {
               {persistenceError}
             </div>
           )}
-          {isSourcesView ? (
+          {isSettingsView ? (
+            <SettingsView
+              theme={theme}
+              onThemeChange={setTheme}
+              fontSize={fontSize}
+              onFontSizeChange={setFontSize}
+            />
+          ) : isSourcesView ? (
             <SourcesView
               sources={visibleSources}
               totalSources={sources.length}
@@ -210,10 +232,18 @@ export default function App() {
               isRefreshing={isRefreshing}
               refreshError={refreshError}
               onToggleSaved={toggleSaved}
+              onReadArticle={setReadingArticle}
             />
           )}
         </main>
       </div>
+
+      {readingArticle && (
+        <ArticleReader
+          article={readingArticle}
+          onClose={() => setReadingArticle(null)}
+        />
+      )}
     </div>
   );
 }

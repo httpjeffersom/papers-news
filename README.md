@@ -30,6 +30,8 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
 - Interface Fluent Design (Windows 11), com tema claro ou escuro.
+- Configurações de tema e de tamanho do texto (cinco níveis, com pré-visualização).
+- Modo de leitura dentro do app, no estilo Instapaper, sem menus e anúncios.
 - Interface responsiva em português, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
 
@@ -44,7 +46,7 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 
 ## Estrutura do projeto
 
-- `src/components/`: cabeçalho, navegação, feed de notícias e gerenciamento de fontes.
+- `src/components/`: cabeçalho, navegação, feed de notícias, fontes, configurações e modo de leitura.
 - `src/services/`: consulta e interpretação de feeds, armazenamento local e integração desktop para abrir links.
 - `src/utils/`: utilitários compartilhados, como a ordenação de publicações por data.
 - `src/styles/`: tokens de design, estilos globais e estilos das telas.
@@ -150,6 +152,7 @@ No app desktop empacotado, o proxy é o `papers-news-proxy.exe` e é iniciado so
 
 - **A janela do desktop abre em branco:** confirme que `enableServer` está como `true` em `neutralino.config.json` e execute `npm run desktop:update` para baixar o cliente `resources/js/neutralino.js`, depois `npm run desktop`.
 - **A janela fica preta depois de fechar e abrir o app (versões até 0.4.0):** o proxy da versão antiga continuava rodando e prendia a porta `51789`. Feche o `papers-news-proxy.exe` no Gerenciador de Tarefas (ou reinicie o computador) uma vez e atualize para a 0.4.1; a partir dela o proxy encerra junto com o app.
+- **O modo de leitura mostra apenas o resumo:** alguns sites escondem o texto atrás de login, paywall ou proteção contra robôs. Nesse caso, o Papers News exibe o resumo do feed e mantém o botão "Abrir publicação" para continuar no site.
 - **O executável do Windows não busca notícias:** mantenha o `papers-news-proxy.exe` na mesma pasta do `papers-news-win_x64.exe`. Ele é iniciado automaticamente; se você o removeu, gere o pacote novamente com `npm run desktop:package`.
 - **Não consigo adicionar um site:** confirme que o proxy local está ativo. `npm run dev`, `npm run preview` e `npm run desktop` o iniciam automaticamente; para rodar separado, use `npm run proxy`. Se a porta `8787` estiver ocupada por outro programa, inicie o proxy com `FEED_PROXY_PORT=8790` e defina `VITE_FEED_PROXY_URL=http://127.0.0.1:8790` para o app.
 - **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no `localStorage`. Não altere essa porta sem necessidade.

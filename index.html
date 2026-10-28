@@ -20,6 +20,16 @@
           const root = document.documentElement;
           root.dataset.theme = theme;
           root.style.colorScheme = theme;
+
+          // Mesma escala de fontSize.js, aplicada antes da primeira pintura
+          // para o texto já aparecer no tamanho escolhido.
+          const scales = [0.9, 1, 1.1, 1.2, 1.3];
+          const ids = ["small", "default", "medium", "large", "larger"];
+          const storedFont = localStorage.getItem("papers-news:font-size:v1");
+          const fontIndex = /^[0-4]$/.test(storedFont ?? "") ? Number(storedFont) : 1;
+          root.style.setProperty("--font-scale", String(scales[fontIndex]));
+          root.dataset.fontSize = ids[fontIndex];
+
           document
             .querySelector('meta[name="theme-color"]')
             .setAttribute("content", theme === "dark" ? "#1f1f1f" : "#f3f3f3");

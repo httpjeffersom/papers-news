@@ -45,6 +45,9 @@
 
   --content-width: 1000px;
   --topbar-height: 64px;
+
+  /* Escala do texto definida em Configurações (1 = padrão). */
+  --font-scale: 1;
 }
 
 /* --------------------------------------------------------------------------

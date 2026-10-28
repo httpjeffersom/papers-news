@@ -18,7 +18,7 @@ function formatPublishedAt(value) {
   return `${date} · ${time}`;
 }
 
-export default function NewsItem({ article, isSaved, onToggleSaved }) {
+export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
   const [openError, setOpenError] = useState("");
   const [imageFailed, setImageFailed] = useState(false);
   const publishedAtLabel = formatPublishedAt(article.publishedAt);
@@ -64,9 +64,19 @@ export default function NewsItem({ article, isSaved, onToggleSaved }) {
       <p className="article-summary">{article.summary}</p>
 
       <div className="article-actions">
-        <button className="text-action" type="button" onClick={handleOpen}>
-          {article.isDemo ? "Abrir exemplo" : "Abrir publicação"} <Icon name="external" />
-        </button>
+        <div className="article-actions-main">
+          <button
+            className="read-action"
+            type="button"
+            onClick={() => onRead(article)}
+          >
+            <Icon name="read" />
+            Ler aqui
+          </button>
+          <button className="text-action" type="button" onClick={handleOpen}>
+            {article.isDemo ? "Abrir exemplo" : "Abrir publicação"} <Icon name="external" />
+          </button>
+        </div>
         <button
           className={`icon-action${isSaved ? " is-saved" : ""}`}
           type="button"

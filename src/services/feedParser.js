@@ -1,4 +1,5 @@
 export const maxArticlesPerFeed = 30;
+export const maxStoredContentLength = 30000;
 
 const nameConnectors = new Set([
   "a",
@@ -365,6 +366,8 @@ export function parseFeedXml(xmlText, source, feedUrl) {
       publishedAt: getItemDate(item),
       image,
       url: link,
+      // O HTML completo permite o modo de leitura sem baixar a página de novo.
+      content: (content || description || "").slice(0, maxStoredContentLength),
       isDemo: false,
     });
   }

@@ -7,6 +7,8 @@
 html {
   min-width: 320px;
   min-height: 100%;
+  /* Os tamanhos da interface usam rem; a escala vem de Configurações. */
+  font-size: calc(16px * var(--font-scale));
   background: var(--bg-canvas);
   -webkit-text-size-adjust: 100%;
 }
