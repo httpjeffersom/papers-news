@@ -4,8 +4,9 @@ const items = [
   { id: "all", label: "Todas as notícias", icon: "feed" },
   { id: "favorites", label: "Favoritos", icon: "bookmark" },
   { id: "sources", label: "Fontes", icon: "source" },
-  { id: "settings", label: "Configurações", icon: "settings" },
 ];
+
+const settingsItem = { id: "settings", label: "Configurações", icon: "settings" };
 
 export default function Navigation({
   activeView,
@@ -37,7 +38,19 @@ export default function Navigation({
           </button>
         ))}
       </nav>
-      <p className="sidebar-note">{sourceLabel}</p>
+
+      <div className="sidebar-footer">
+        <button
+          className={`nav-item${activeView === settingsItem.id ? " is-active" : ""}`}
+          type="button"
+          onClick={() => onChange(settingsItem.id)}
+          aria-current={activeView === settingsItem.id ? "page" : undefined}
+        >
+          <Icon name={settingsItem.icon} />
+          <span>{settingsItem.label}</span>
+        </button>
+        <p className="sidebar-note">{sourceLabel}</p>
+      </div>
     </aside>
   );
 }

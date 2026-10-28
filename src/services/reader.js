@@ -410,6 +410,55 @@ export function hasFeedContent(article) {
   return { html: fragment.html, text: fragment.text, length: fragment.text.length };
 }
 
+function normalizeImageUrl(value) {
+  try {
+    const url = new URL(value);
+    return `${url.hostname.toLocaleLowerCase("en-US")}${url.pathname.replace(/\/$/, "")}`;
+  } catch {
+    return String(value)
+      .replace(/^https?:\/\//i, "")
+      .replace(/\/$/, "");
+  }
+}
+
+/**
+ * O feed costuma repetir a mesma foto no conteúdo completo. Como o leitor já
+ * exibe a imagem de capa no topo, removemos do texto as cópias iguais (inclusive
+ * quando o endereço muda só nos parâmetros de tamanho) para não duplicar.
+ */
+export function removeDuplicateImage(html, imageUrl) {
+  if (typeof html !== "string" || !html.trim() || !imageUrl) return html;
+
+  const target = normalizeImageUrl(imageUrl);
+  const document = parseHtmlDocument(
+    `<div id="papers-news-reader-root">${html}</div>`,
+  );
+  const root = findById(document, "papers-news-reader-root");
+  if (!root) return html;
+
+  let removed = false;
+
+  for (const image of [...root.getElementsByTagName("img")]) {
+    if (normalizeImageUrl(image.getAttribute("src") || "") !== target) continue;
+
+    const parent = image.parentNode;
+    parent?.removeChild(image);
+    removed = true;
+
+    // Uma figura sem imagens também sai (a legenda pertencia à foto). Em
+    // parágrafos e links, remove apenas quando o bloco ficou vazio.
+    if (!parent || parent.getElementsByTagName("img").length > 0) continue;
+
+    const parentTag = tagNameOf(parent);
+    const isEmpty = textLengthOf(parent) === 0;
+    if (parentTag === "figure" || (isEmpty && ["p", "a"].includes(parentTag))) {
+      parent.parentNode?.removeChild(parent);
+    }
+  }
+
+  return removed ? serializeChildren(root) : html;
+}
+
 function summaryFallback(article, limited) {
   const summary = (article?.summary || "").trim();
   return {
@@ -424,7 +473,12 @@ function summaryFallback(article, limited) {
 export async function loadArticleContent(article) {
   const fromFeed = hasFeedContent(article);
   if (fromFeed) {
-    return { ...fromFeed, origin: "feed", limited: false };
+    return {
+      ...fromFeed,
+      html: removeDuplicateImage(fromFeed.html, article.image),
+      origin: "feed",
+      limited: false,
+    };
   }
 
   try {
@@ -432,7 +486,12 @@ export async function loadArticleContent(article) {
     const extracted = extractArticleContent(pageHtml, article.url);
 
     if (extracted.length >= minReadableLength) {
-      return { ...extracted, origin: "page", limited: false };
+      return {
+        ...extracted,
+        html: removeDuplicateImage(extracted.html, article.image),
+        origin: "page",
+        limited: false,
+      };
     }
   } catch {
     // Sem rede ou site bloqueando: o resumo do feed ainda é útil.

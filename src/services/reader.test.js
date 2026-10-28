@@ -4,6 +4,7 @@ import { DOMParser } from "@xmldom/xmldom";
 import {
   extractArticleContent,
   hasFeedContent,
+  removeDuplicateImage,
   sanitizeArticleHtml,
 } from "./reader.js";
 
@@ -78,6 +79,29 @@ test("extracts the main article and discards navigation blocks", () => {
   assert.match(result.html, /Primeiro parágrafo/);
   assert.match(result.html, /https:\/\/site\.example\/foto\.jpg/);
   assert.doesNotMatch(result.html, /Compartilhe|Rodapé|Início/);
+});
+
+test("removes the cover photo repeated in the article content", () => {
+  const html = [
+    '<figure><img src="https://cdn.example/foto.jpg?w=1200" alt=""><figcaption>Legenda da foto</figcaption></figure>',
+    "<p>Texto da notícia.</p>",
+    '<p><img src="https://cdn.example/foto.jpg" alt=""></p>',
+    '<a href="https://example.com"><img src="https://cdn.example/foto.jpg" alt=""></a>',
+    '<img src="https://cdn.example/outra.jpg" alt="Outra foto">',
+  ].join("");
+
+  const result = removeDuplicateImage(html, "https://cdn.example/foto.jpg");
+
+  assert.doesNotMatch(result, /foto\.jpg|Legenda da foto/);
+  assert.match(result, /Texto da notícia/);
+  assert.match(result, /outra\.jpg/);
+});
+
+test("keeps the content untouched when the cover photo is not repeated", () => {
+  const html = '<p>Texto</p><img src="https://cdn.example/outra.jpg" alt="">';
+  const result = removeDuplicateImage(html, "https://cdn.example/capa.jpg");
+
+  assert.equal(result, html);
 });
 
 test("recognizes long feed content and rejects short summaries", () => {

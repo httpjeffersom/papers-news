@@ -5,7 +5,7 @@ const options = [
   { value: "dark", label: "Escuro", icon: "moon" },
 ];
 
-export default function ThemeSwitcher({ theme, onChange, showLabels = false }) {
+export default function ThemeSwitcher({ theme, onChange }) {
   function handleKeyDown(event) {
     const currentIndex = options.findIndex((option) => option.value === theme);
     let nextIndex = null;
@@ -28,7 +28,7 @@ export default function ThemeSwitcher({ theme, onChange, showLabels = false }) {
 
   return (
     <div
-      className={`theme-switcher${showLabels ? " has-labels" : ""}`}
+      className="theme-picker"
       role="radiogroup"
       aria-label="Tema da interface"
       onKeyDown={handleKeyDown}
@@ -38,17 +38,34 @@ export default function ThemeSwitcher({ theme, onChange, showLabels = false }) {
         return (
           <button
             key={option.value}
-            className="theme-option"
+            className="theme-choice"
             type="button"
             role="radio"
             aria-checked={isChecked}
             aria-label={`Tema ${option.label.toLocaleLowerCase("pt-BR")}`}
-            title={`Tema ${option.label.toLocaleLowerCase("pt-BR")}`}
+            data-theme-choice={option.value}
             tabIndex={isChecked ? 0 : -1}
             onClick={() => onChange(option.value)}
           >
-            <Icon name={option.icon} />
-            {showLabels && <span>{option.label}</span>}
+            <span className="theme-choice-preview" aria-hidden="true">
+              <span className="theme-choice-preview-bar" />
+              <span className="theme-choice-preview-body">
+                <span className="theme-choice-preview-letter">Aa</span>
+                <span className="theme-choice-preview-lines">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </span>
+            </span>
+
+            <span className="theme-choice-label">
+              <Icon name={option.icon} />
+              <span>{option.label}</span>
+              <span className="theme-choice-check">
+                <Icon name="check" />
+              </span>
+            </span>
           </button>
         );
       })}

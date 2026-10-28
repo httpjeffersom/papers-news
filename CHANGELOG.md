@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.5.1] - 2026-10-28
+
+### Corrigido
+
+- A foto de capa não aparece mais duplicada no modo de leitura: o leitor exibe a imagem uma vez e remove do texto as cópias iguais, inclusive quando o endereço muda apenas nos parâmetros de tamanho.
+- A aba **Configurações** passou para o rodapé do menu lateral, logo acima da contagem de fontes conectadas.
+- O seletor de tema foi refeito: cada opção mostra uma prévia com letras e blocos na própria paleta, com ícone e rótulo alinhados. A opção marcada acompanha imediatamente o tema aplicado.
+
 ## [0.5.0] - 2026-10-28
 
 ### Adicionado

@@ -63,7 +63,7 @@ export default function SettingsView({
               Claro para o dia, escuro para ambientes com pouca luz.
             </span>
           </div>
-          <ThemeSwitcher theme={theme} onChange={onThemeChange} showLabels />
+          <ThemeSwitcher theme={theme} onChange={onThemeChange} />
         </div>
       </div>
 
