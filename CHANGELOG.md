@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.4.1] - 2026-10-28
+
+### Corrigido
+
+- O aplicativo não abre mais com a tela preta depois de já ter sido executado e fechado: o proxy de feeds, iniciado pelo app, herdava o socket do servidor local e continuava rodando depois do fechamento. Na execução seguinte, a porta `51789` aparecia ocupada e a janela ficava preta. Agora o proxy encerra sozinho quando o aplicativo termina.
+- O aplicativo não fecha mais sozinho ao abrir quando o proxy não é encontrado: o caminho do `papers-news-proxy.exe` passa a ser montado a partir do diretório real do aplicativo, e a saída do comando de inicialização é descartada.
+
 ## [0.4.0] - 2026-10-27
 
 ### Adicionado

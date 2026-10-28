@@ -1,12 +1,14 @@
 const http = require("node:http");
+const { execFileSync } = require("node:child_process");
 
 const HOST = process.env.FEED_PROXY_HOST || "127.0.0.1";
 const PORT = Number(process.env.FEED_PROXY_PORT || 8787);
 const ALLOW_PRIVATE_HOSTS = process.env.FEED_PROXY_ALLOW_PRIVATE === "1";
 const REQUEST_TIMEOUT_MS = 25000;
 const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
+const WATCHDOG_INTERVAL_MS = 2000;
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.3.1";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.4.1";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -211,7 +213,105 @@ const server = http.createServer(async (request, response) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Proxy de feeds do Papers News em http://${HOST}:${PORT}`);
+  watchOwnerProcess();
 });
+
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error.code === "EPERM";
+  }
+}
+
+function readWindowsProcess(pid) {
+  if (process.platform !== "win32") return null;
+
+  const script = [
+    `$p = Get-CimInstance Win32_Process -Filter "ProcessId=${pid}" -ErrorAction SilentlyContinue;`,
+    "if ($p) {",
+    "  [pscustomobject]@{ name = $p.Name; parent = $p.ParentProcessId } |",
+    "    ConvertTo-Json -Compress",
+    "}",
+  ].join(" ");
+
+  const output = execFileSync(
+    "powershell.exe",
+    ["-NoProfile", "-NonInteractive", "-Command", script],
+    { encoding: "utf8", timeout: 12000, windowsHide: true },
+  ).trim();
+
+  return output ? JSON.parse(output) : null;
+}
+
+/**
+ * O app inicia o proxy com `cmd.exe /c`, então o pai direto é o cmd e o
+ * processo que precisa continuar vivo é o avô (o próprio aplicativo).
+ * Sem isso, o proxy sobrevive ao fechamento do app e mantém, por herança,
+ * o socket da porta do servidor local — o que faz a próxima execução abrir
+ * com a tela preta.
+ */
+function resolveOwnerPid() {
+  const explicit = Number(process.env.PAPERS_NEWS_PARENT_PID || 0);
+  if (Number.isInteger(explicit) && explicit > 0) return explicit;
+
+  const parent = process.ppid;
+  const info = readWindowsProcess(parent);
+
+  if (info && String(info.name).toLowerCase() === "cmd.exe") {
+    const grandparent = Number(info.parent);
+    if (Number.isInteger(grandparent) && grandparent > 0) return grandparent;
+  }
+
+  return parent;
+}
+
+function stopProxy() {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 500).unref();
+}
+
+function watchOwnerProcess() {
+  let pollTimer = null;
+
+  const poll = (ownerPid) => {
+    pollTimer = setInterval(() => {
+      if (isProcessAlive(ownerPid)) return;
+
+      clearInterval(pollTimer);
+      console.log("Aplicativo encerrado. Encerrando o proxy de feeds.");
+      stopProxy();
+    }, WATCHDOG_INTERVAL_MS);
+
+    pollTimer.unref();
+  };
+
+  const resolveAndPoll = () => {
+    let ownerPid;
+
+    try {
+      ownerPid = resolveOwnerPid();
+    } catch {
+      // O WMI pode falhar sob carga logo após o boot; tenta de novo.
+      return false;
+    }
+
+    if (!ownerPid || ownerPid === process.pid) return false;
+
+    poll(ownerPid);
+    return true;
+  };
+
+  if (resolveAndPoll()) return;
+
+  const retryTimer = setInterval(() => {
+    if (!resolveAndPoll()) return;
+    clearInterval(retryTimer);
+  }, 5000);
+
+  retryTimer.unref();
+}
 
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {

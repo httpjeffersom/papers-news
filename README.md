@@ -149,6 +149,7 @@ No app desktop empacotado, o proxy é o `papers-news-proxy.exe` e é iniciado so
 ## Solução de problemas
 
 - **A janela do desktop abre em branco:** confirme que `enableServer` está como `true` em `neutralino.config.json` e execute `npm run desktop:update` para baixar o cliente `resources/js/neutralino.js`, depois `npm run desktop`.
+- **A janela fica preta depois de fechar e abrir o app (versões até 0.4.0):** o proxy da versão antiga continuava rodando e prendia a porta `51789`. Feche o `papers-news-proxy.exe` no Gerenciador de Tarefas (ou reinicie o computador) uma vez e atualize para a 0.4.1; a partir dela o proxy encerra junto com o app.
 - **O executável do Windows não busca notícias:** mantenha o `papers-news-proxy.exe` na mesma pasta do `papers-news-win_x64.exe`. Ele é iniciado automaticamente; se você o removeu, gere o pacote novamente com `npm run desktop:package`.
 - **Não consigo adicionar um site:** confirme que o proxy local está ativo. `npm run dev`, `npm run preview` e `npm run desktop` o iniciam automaticamente; para rodar separado, use `npm run proxy`. Se a porta `8787` estiver ocupada por outro programa, inicie o proxy com `FEED_PROXY_PORT=8790` e defina `VITE_FEED_PROXY_URL=http://127.0.0.1:8790` para o app.
 - **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no `localStorage`. Não altere essa porta sem necessidade.

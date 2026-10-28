@@ -53,25 +53,25 @@ async function isClientReady() {
 }
 
 function joinPath(base, name) {
-  const separator = base.includes("\\") ? "\\" : "/";
-  return `${base.replace(/[\\/]+$/, "")}${separator}${name}`;
+  const isWindowsPath = /^[a-zA-Z]:[\\/]/.test(base) || base.startsWith("\\\\");
+  const separator = isWindowsPath || base.includes("\\") ? "\\" : "/";
+  const normalized = isWindowsPath ? base.replace(/\//g, "\\") : base;
+  return `${normalized.replace(/[\\/]+$/, "")}${separator}${name}`;
 }
 
-async function candidatePaths() {
-  const os = neutralino()?.os;
+// O Neutralino expõe a pasta do aplicativo nestes globais. Usar
+// `os.getEnv` não funciona porque eles não são variáveis de ambiente: o
+// caminho relativo acabava dependendo do diretório de trabalho do processo,
+// que pode ser qualquer um quando o app é aberto por um atalho.
+function candidatePaths() {
   const candidates = [];
 
-  for (const variable of ["NL_PATH", "NL_CWD"]) {
-    try {
-      const value = await os.getEnv(variable);
-      if (value) candidates.push(joinPath(value, proxyExecutable));
-    } catch {
-      // A variável pode não existir em todos os modos do Neutralino.
+  for (const base of [globalThis.NL_PATH, globalThis.NL_CWD]) {
+    if (typeof base === "string" && base.trim()) {
+      candidates.push(joinPath(base, proxyExecutable));
     }
   }
 
-  // O processo é iniciado no diretório do executável principal, então o
-  // nome relativo funciona mesmo quando NL_PATH não é exposto.
   candidates.push(proxyExecutable);
   return [...new Set(candidates)];
 }
@@ -88,9 +88,12 @@ async function waitForProxy() {
 }
 
 async function startProxy() {
-  for (const candidate of await candidatePaths()) {
+  for (const candidate of candidatePaths()) {
     try {
-      await neutralino().os.spawnProcess(`"${candidate}"`);
+      // A saída é descartada de propósito: quando o caminho não existe, o
+      // cmd responde em CP850, e o Neutralino encerra o processo ao tentar
+      // serializar esses bytes como UTF-8.
+      await neutralino().os.spawnProcess(`"${candidate}" > NUL 2>&1`);
     } catch {
       continue;
     }

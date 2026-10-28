@@ -28,6 +28,7 @@ const zipName = `papers-news-${version}-${platform}.zip`;
 
 const distRoot = path.join(root, "dist");
 const bundleDir = path.join(distRoot, "papers-news");
+const tmpRoot = path.join(root, ".tmp");
 const workDir = path.join(root, ".tmp", "sea");
 const seaConfigPath = path.join(workDir, "sea-config.json");
 const seaBlobPath = path.join(workDir, "proxy-sea.blob");
@@ -96,7 +97,10 @@ async function main() {
   );
 
   rmSync(distRoot, { recursive: true, force: true });
-  rmSync(workDir, { recursive: true, force: true });
+  // O `neu build` empacota todo o conteudo de `.tmp`, nao apenas
+  // `resources`. Sem limpar, restos de execucoes anteriores (inclusive o
+  // blob do proxy) entram no `resources.neu` e inflam o pacote.
+  rmSync(tmpRoot, { recursive: true, force: true });
 
   await run(node, [viteBin, "build"], "Build do Vite");
   await run(node, [neuBin, "build"], "Pacote do Neutralino");
