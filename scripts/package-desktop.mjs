@@ -2,7 +2,6 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   copyFileSync,
-  mkdirSync,
   readFileSync,
   readdirSync,
   rmSync,
@@ -15,24 +14,21 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const node = process.execPath;
 const viteBin = path.join(root, "node_modules", "vite", "bin", "vite.js");
 const neuBin = path.join(root, "node_modules", "@neutralinojs", "neu", "bin", "neu.js");
-const postjectBin = path.join(root, "node_modules", "postject", "dist", "cli.js");
 
 const packageJson = JSON.parse(
   readFileSync(path.join(root, "package.json"), "utf8"),
 );
 const version = packageJson.version;
 const platform = "win_x64";
-const seaFuse = "NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2";
-const proxyName = "papers-news-proxy.exe";
+const proxyRuntimeName = "papers-news-node.exe";
+const proxyScriptName = "feed-proxy.cjs";
 const zipName = `papers-news-${version}-${platform}.zip`;
 
 const distRoot = path.join(root, "dist");
 const bundleDir = path.join(distRoot, "papers-news");
 const tmpRoot = path.join(root, ".tmp");
-const workDir = path.join(root, ".tmp", "sea");
-const seaConfigPath = path.join(workDir, "sea-config.json");
-const seaBlobPath = path.join(workDir, "proxy-sea.blob");
-const proxyPath = path.join(bundleDir, proxyName);
+const proxyRuntimePath = path.join(bundleDir, proxyRuntimeName);
+const proxyScriptPath = path.join(bundleDir, proxyScriptName);
 const zipPath = path.join(distRoot, zipName);
 
 function assertFile(file, hint) {
@@ -64,9 +60,10 @@ ${"=".repeat(`Papers News ${version}`.length)}
 1. Extraia esta pasta em um local permanente (por exemplo,
    C:\\Program Files\\Papers News).
 2. Execute papers-news-win_x64.exe.
-3. Mantenha papers-news-proxy.exe na mesma pasta. Ele é iniciado
-   automaticamente pelo aplicativo e é o responsável por buscar os feeds
-   sem erros de CORS.
+3. Mantenha papers-news-node.exe e feed-proxy.cjs na mesma pasta. Eles são
+   iniciados automaticamente pelo aplicativo e são os responsáveis por
+   buscar os feeds sem erros de CORS. O papers-news-node.exe é o runtime
+   Node.js assinado, por isso abre sem avisos de segurança.
 4. Se o Windows SmartScreen avisar sobre um aplicativo não reconhecido,
    clique em "Mais informações" > "Executar assim mesmo". O executável
    não possui assinatura digital.
@@ -85,7 +82,7 @@ armazenamento local do aplicativo, neste computador.
 async function main() {
   assertFile(viteBin, "Execute npm install antes de empacotar.");
   assertFile(neuBin, "Execute npm install antes de empacotar.");
-  assertFile(postjectBin, "Execute npm install antes de empacotar.");
+  assertFile(node, "O runtime do Node.js não foi encontrado.");
   assertFile(
     path.join(root, "bin", "neutralino-win_x64.exe"),
     'Execute "npm run desktop:update" para baixar os binarios do Neutralino.',
@@ -98,8 +95,8 @@ async function main() {
 
   rmSync(distRoot, { recursive: true, force: true });
   // O `neu build` empacota todo o conteudo de `.tmp`, nao apenas
-  // `resources`. Sem limpar, restos de execucoes anteriores (inclusive o
-  // blob do proxy) entram no `resources.neu` e inflam o pacote.
+  // `resources`. Sem limpar, restos de execucoes anteriores entram no
+  // `resources.neu` e inflam o pacote.
   rmSync(tmpRoot, { recursive: true, force: true });
 
   await run(node, [viteBin, "build"], "Build do Vite");
@@ -113,38 +110,15 @@ async function main() {
     rmSync(path.join(bundleDir, entry), { recursive: true, force: true });
   }
 
-  mkdirSync(workDir, { recursive: true });
-  writeFileSync(
-    seaConfigPath,
-    JSON.stringify(
-      {
-        main: "scripts/feed-proxy.cjs",
-        output: ".tmp/sea/proxy-sea.blob",
-        disableExperimentalSEAWarning: true,
-      },
-      null,
-      2,
-    ),
-  );
-
-  await run(
-    node,
-    ["--experimental-sea-config", seaConfigPath],
-    "Geracao do blob do proxy",
-  );
-
-  copyFileSync(node, proxyPath);
-  await run(
-    node,
-    [
-      postjectBin,
-      proxyPath,
-      "NODE_SEA_BLOB",
-      seaBlobPath,
-      "--sentinel-fuse",
-      seaFuse,
-    ],
-    "Injecao do proxy no executavel",
+  // O proxy roda no runtime Node.js assinado (OpenJS Foundation) em vez de
+  // um executável Single Executable Application. Assim o binário mantém a
+  // assinatura digital e o Windows com Controle de Aplicativo não bloqueia
+  // a execução. O script em si é um arquivo de dados e pode ser atualizado
+  // a cada versão sem trocar o executável.
+  copyFileSync(node, proxyRuntimePath);
+  copyFileSync(
+    path.join(root, "scripts", "feed-proxy.cjs"),
+    proxyScriptPath,
   );
 
   writeFileSync(path.join(bundleDir, "LEIA-ME.txt"), readme, "utf8");

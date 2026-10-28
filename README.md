@@ -111,17 +111,18 @@ npm run desktop:package
 O pacote fica em `dist/` e contém:
 
 - `papers-news-win_x64.exe` — aplicativo;
-- `papers-news-proxy.exe` — proxy de feeds, iniciado automaticamente pelo app;
+- `papers-news-node.exe` — runtime Node.js assinado que executa o proxy de feeds;
+- `feed-proxy.cjs` — script do proxy, iniciado automaticamente pelo app;
 - `resources.neu` — interface compilada;
 - `LEIA-ME.txt` — instruções de uso;
 - `LICENSE` — licença MIT do projeto;
 - `THIRD-PARTY-NOTICES.txt` — licenças dos componentes de terceiros (Node.js, Neutralinojs, React).
 
-O comando também gera o arquivo `.sha256` com o checksum do ZIP. O `papers-news-proxy.exe` é gerado a partir do Node.js com [Single Executable Applications](https://nodejs.org/api/single-executable-applications.html), por isso é maior que o executável principal. Mantenha os dois executáveis na mesma pasta.
+O comando também gera o arquivo `.sha256` com o checksum do ZIP. O proxy roda no `papers-news-node.exe`, o runtime Node.js oficial assinado pela OpenJS Foundation, em vez de um executável próprio gerado com [Single Executable Applications](https://nodejs.org/api/single-executable-applications.html). Assim o binário mantém a assinatura digital e não é bloqueado pelo Controle de Aplicativo do Windows. Mantenha o runtime e o `feed-proxy.cjs` na mesma pasta do aplicativo.
 
 ## Fontes RSS/Atom
 
-Basta colar o endereço principal do site (por exemplo, `https://tecnoblog.net/`). O Papers News tenta descobrir o feed sozinho, nesta ordem:
+Basta colar o endereço principal do site (por exemplo, `https://exemplo.com/`). O Papers News tenta descobrir o feed sozinho, nesta ordem:
 
 1. usa a própria URL, se ela já parecer um feed;
 2. abre a página e procura `<link rel="alternate">` com RSS/Atom e links de feed;
@@ -129,11 +130,11 @@ Basta colar o endereço principal do site (por exemplo, `https://tecnoblog.net/`
 4. testa caminhos comuns como `/feed/`, `/rss.xml`, `/atom.xml`, `/index.xml` e `/feeds/posts/default`;
 5. se um desses caminhos for uma página com vários feeds, testa os feeds encontrados nela.
 
-Se o site não publica RSS/Atom ou não expõe o endereço, ainda é possível informar o feed diretamente (por exemplo, `https://tecnoblog.net/feed/`).
+Se o site não publica RSS/Atom ou não expõe o endereço, ainda é possível informar o feed diretamente (por exemplo, `https://exemplo.com/feed/`).
 
 A leitura acontece no proxy local (`scripts/feed-proxy.cjs`), que baixa o XML e o entrega ao app com os cabeçalhos de CORS necessários. O proxy usa o seu próprio IP, segue redirecionamentos, respeita o charset do feed, bloqueia endereços privados e limita a resposta a 15 MB. RSS2JSON e AllOrigins continuam existindo apenas como alternativas caso o proxy não esteja rodando.
 
-No app desktop empacotado, o proxy é o `papers-news-proxy.exe` e é iniciado sob demanda pelo próprio aplicativo.
+No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `feed-proxy.cjs` e é iniciado sob demanda pelo próprio aplicativo.
 
 ## Scripts disponíveis
 
@@ -151,9 +152,9 @@ No app desktop empacotado, o proxy é o `papers-news-proxy.exe` e é iniciado so
 ## Solução de problemas
 
 - **A janela do desktop abre em branco:** confirme que `enableServer` está como `true` em `neutralino.config.json` e execute `npm run desktop:update` para baixar o cliente `resources/js/neutralino.js`, depois `npm run desktop`.
-- **A janela fica preta depois de fechar e abrir o app (versões até 0.4.0):** o proxy da versão antiga continuava rodando e prendia a porta `51789`. Feche o `papers-news-proxy.exe` no Gerenciador de Tarefas (ou reinicie o computador) uma vez e atualize para a 0.4.1; a partir dela o proxy encerra junto com o app.
+- **A janela fica preta depois de fechar e abrir o app (versões até 0.4.0):** o proxy da versão antiga (`papers-news-proxy.exe`) continuava rodando e prendia a porta `51789`. Feche esse processo no Gerenciador de Tarefas (ou reinicie o computador) uma vez e atualize para a 0.4.1; a partir dela o proxy encerra junto com o app.
 - **O modo de leitura mostra apenas o resumo:** alguns sites escondem o texto atrás de login, paywall ou proteção contra robôs. Nesse caso, o Papers News exibe o resumo do feed e mantém o botão "Abrir publicação" para continuar no site.
-- **O executável do Windows não busca notícias:** mantenha o `papers-news-proxy.exe` na mesma pasta do `papers-news-win_x64.exe`. Ele é iniciado automaticamente; se você o removeu, gere o pacote novamente com `npm run desktop:package`.
+- **O executável do Windows não busca notícias:** mantenha o `papers-news-node.exe` e o `feed-proxy.cjs` na mesma pasta do `papers-news-win_x64.exe`. Eles são iniciados automaticamente; se você os removeu, gere o pacote novamente com `npm run desktop:package`.
 - **Não consigo adicionar um site:** confirme que o proxy local está ativo. `npm run dev`, `npm run preview` e `npm run desktop` o iniciam automaticamente; para rodar separado, use `npm run proxy`. Se a porta `8787` estiver ocupada por outro programa, inicie o proxy com `FEED_PROXY_PORT=8790` e defina `VITE_FEED_PROXY_URL=http://127.0.0.1:8790` para o app.
 - **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no `localStorage`. Não altere essa porta sem necessidade.
 - **O site não tem feed:** alguns sites não publicam RSS/Atom. Nesse caso, não há como montar o feed; cadastre a URL direta de um feed do mesmo site, se existir.

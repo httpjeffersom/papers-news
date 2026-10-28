@@ -1,7 +1,12 @@
 const proxyBaseUrl = (
   import.meta.env?.VITE_FEED_PROXY_URL || "http://127.0.0.1:8787"
 ).replace(/\/$/, "");
-const proxyExecutable = "papers-news-proxy.exe";
+// O proxy roda no runtime Node.js assinado (OpenJS Foundation) com o script
+// ao lado. Um executável próprio gerado com Single Executable Application
+// perde a assinatura digital e o Windows com Controle de Aplicativo bloqueia
+// a execução em algumas máquinas.
+const proxyRuntime = "papers-news-node.exe";
+const proxyScript = "feed-proxy.cjs";
 const healthTimeoutMs = 1500;
 const startTimeoutMs = 20000;
 const retryCooldownMs = 30000;
@@ -63,17 +68,20 @@ function joinPath(base, name) {
 // `os.getEnv` não funciona porque eles não são variáveis de ambiente: o
 // caminho relativo acabava dependendo do diretório de trabalho do processo,
 // que pode ser qualquer um quando o app é aberto por um atalho.
-function candidatePaths() {
-  const candidates = [];
+function candidateCommands() {
+  const commands = [];
 
   for (const base of [globalThis.NL_PATH, globalThis.NL_CWD]) {
     if (typeof base === "string" && base.trim()) {
-      candidates.push(joinPath(base, proxyExecutable));
+      commands.push({
+        runtime: joinPath(base, proxyRuntime),
+        script: joinPath(base, proxyScript),
+      });
     }
   }
 
-  candidates.push(proxyExecutable);
-  return [...new Set(candidates)];
+  commands.push({ runtime: proxyRuntime, script: proxyScript });
+  return commands;
 }
 
 async function waitForProxy() {
@@ -88,12 +96,14 @@ async function waitForProxy() {
 }
 
 async function startProxy() {
-  for (const candidate of candidatePaths()) {
+  for (const command of candidateCommands()) {
     try {
       // A saída é descartada de propósito: quando o caminho não existe, o
       // cmd responde em CP850, e o Neutralino encerra o processo ao tentar
       // serializar esses bytes como UTF-8.
-      await neutralino().os.spawnProcess(`"${candidate}" > NUL 2>&1`);
+      await neutralino().os.spawnProcess(
+        `"${command.runtime}" "${command.script}" > NUL 2>&1`,
+      );
     } catch {
       continue;
     }
@@ -105,7 +115,7 @@ async function startProxy() {
 }
 
 /**
- * No app desktop empacotado, o proxy de feeds é um executável separado.
+ * No app desktop empacotado, o proxy de feeds é um processo Node.js separado.
  * Ele é iniciado sob demanda porque o WebView não pode abrir conexões
  * arbitrárias sem CORS. No navegador a função não faz nada.
  */

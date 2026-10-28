@@ -63,7 +63,7 @@ export default function SourcesView({
       </div>
 
       <div className="sources-notice">
-        Cole o endereço do site (por exemplo, https://tecnoblog.net/) e o Papers News encontra o feed
+        Cole o endereço do site (por exemplo, https://exemplo.com/) e o Papers News encontra o feed
         automaticamente. Se preferir, informe o endereço direto do RSS/Atom. O proxy local é iniciado
         junto com o app, então não depende de serviços públicos.
       </div>

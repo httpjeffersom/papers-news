@@ -640,21 +640,6 @@
   font-size: 0.75rem;
 }
 
-.source-avatar {
-  display: grid;
-  width: 28px;
-  height: 28px;
-  flex: none;
-  place-items: center;
-  border: 1px solid var(--stroke);
-  border-radius: 6px;
-  background: var(--bg-subtle);
-  color: var(--text-2);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
 .source-name {
   min-width: 0;
   overflow: hidden;
@@ -1186,9 +1171,19 @@
   gap: 24px;
 }
 
+/* Nas linhas empilhadas o conteúdo fica centralizado, alinhado ao cabeçalho
+   do cartão — antes o seletor escorregava para a esquerda. */
 .settings-row.is-stacked {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   gap: 16px;
+  text-align: center;
+}
+
+.settings-row.is-stacked .settings-row-label {
+  justify-items: center;
+  max-width: 44ch;
 }
 
 .settings-row-label {
@@ -1211,7 +1206,9 @@
 
 .font-size-picker {
   display: grid;
+  width: min(100%, 560px);
   gap: 12px;
+  margin-inline: auto;
 }
 
 .font-size-options {
@@ -1326,7 +1323,8 @@
 
 .font-preview {
   position: relative;
-  margin-top: 18px;
+  width: min(100%, 640px);
+  margin: 18px auto 0;
   overflow: hidden;
   padding: 18px 20px 20px;
   border: 1px solid var(--stroke);
@@ -1373,6 +1371,82 @@
   padding: 2px 2px 0;
   color: var(--text-3);
   font-size: 0.75rem;
+}
+
+/* Privacidade — o texto curto e o atalho para conferir o código. */
+.settings-privacy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 24px;
+  padding: 16px 18px;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-card);
+  background: var(--bg-layer-alt);
+}
+
+.settings-privacy-text {
+  display: grid;
+  max-width: 62ch;
+  gap: 4px;
+}
+
+.settings-privacy-title {
+  color: var(--text-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.settings-privacy-text p + p {
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.settings-privacy-error {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.settings-link-button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--stroke-strong);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+.settings-link-button:hover {
+  border-color: var(--accent-border);
+  background: var(--bg-subtle-hover);
+  color: var(--accent-text);
+}
+
+.settings-link-button:active {
+  background: var(--bg-subtle);
+}
+
+.settings-link-button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.settings-link-button svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -1878,6 +1952,16 @@
 
   .font-size-label {
     font-size: 0.625rem;
+  }
+
+  .settings-privacy {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    padding: 14px 16px;
+  }
+
+  .settings-link-button {
+    margin-top: 4px;
   }
 
   .reader-bar {

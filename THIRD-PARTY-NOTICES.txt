@@ -1,7 +1,7 @@
 Papers News — Avisos de licenças de terceiros
 ==============================================
 
-Papers News 0.3.1 é distribuído sob a licença MIT. O texto completo da
+Papers News 0.5.2 é distribuído sob a licença MIT. O texto completo da
 licença do projeto está no arquivo LICENSE.
 
 Este pacote inclui os componentes de terceiros relacionados abaixo. Cada
@@ -11,7 +11,7 @@ copiados dos projetos originais e são reproduzidos na íntegra.
 Componentes distribuídos neste pacote
 -------------------------------------
 - Node.js 24.20.0
-  Usado em papers-news-proxy.exe (Node.js Single Executable Application).
+  Usado em papers-news-node.exe (runtime do proxy de feeds).
   Licença do Node.js e dos componentes embarcados: seção "Node.js 24.20.0".
 
 - Neutralinojs core (papers-news-win_x64.exe)

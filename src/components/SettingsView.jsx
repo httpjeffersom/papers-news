@@ -1,6 +1,10 @@
+import { useState } from "react";
 import Icon from "./Icon.jsx";
 import ThemeSwitcher from "./ThemeSwitcher.jsx";
+import { openExternalUrl } from "../services/desktop.js";
 import { fontSizeLevels, fontSizeScale } from "../services/fontSize.js";
+
+const repositoryUrl = "https://github.com/httpjeffersom/papers-news";
 
 export default function SettingsView({
   theme,
@@ -9,9 +13,20 @@ export default function SettingsView({
   onFontSizeChange,
 }) {
   const selectedLevel = fontSizeLevels[fontSize];
+  const [repositoryError, setRepositoryError] = useState("");
 
   function handleSliderChange(event) {
     onFontSizeChange(Number(event.target.value));
+  }
+
+  async function handleOpenRepository() {
+    setRepositoryError("");
+    try {
+      await openExternalUrl(repositoryUrl);
+    } catch (error) {
+      console.error("Não foi possível abrir o repositório:", error);
+      setRepositoryError("Não foi possível abrir o navegador.");
+    }
   }
 
   function handleOptionsKeyDown(event) {
@@ -163,6 +178,32 @@ export default function SettingsView({
       <p className="settings-footnote">
         Suas preferências ficam salvas apenas neste computador.
       </p>
+
+      <div className="settings-privacy">
+        <div className="settings-privacy-text">
+          <p className="settings-privacy-title">Sem coleta de dados</p>
+          <p>
+            Não coletamos nada: fontes, notícias e favoritos ficam salvos
+            localmente, no seu computador. O código é aberto e você pode
+            conferi-lo no repositório do projeto.
+          </p>
+        </div>
+
+        <button
+          className="settings-link-button"
+          type="button"
+          onClick={handleOpenRepository}
+        >
+          <Icon name="external" />
+          Abrir repositório no GitHub
+        </button>
+
+        {repositoryError && (
+          <p className="inline-error settings-privacy-error" role="alert">
+            {repositoryError}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

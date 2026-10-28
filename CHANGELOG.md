@@ -2,6 +2,26 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.5.2] - 2026-10-28
+
+### Alterado
+
+- A seção **Leitura**, em Configurações, agora fica centralizada no cartão, junto do título: o seletor de tamanho e a pré-visualização deixaram de encostar na margem esquerda.
+- O rodapé do menu lateral mostra a **versão atual do programa** no lugar da contagem de fontes conectadas, que já aparece na aba Fontes.
+- O proxy de feeds passou a rodar no runtime **Node.js assinado** (`papers-news-node.exe`) com o script `feed-proxy.cjs`, em vez de um executável próprio gerado com Single Executable Application. Assim o Windows com Controle de Aplicativo não bloqueia o binário recém-atualizado, e o script pode mudar a cada versão sem trocar o executável.
+
+### Adicionado
+
+- Nota de privacidade abaixo de "Suas preferências ficam salvas apenas neste computador": o texto explica que nada é coletado e que os dados ficam locais, com o botão **Abrir repositório no GitHub** para conferir o código no navegador.
+
+### Removido
+
+- O quadradinho com as iniciais da fonte ao lado do nome, nos cartões do feed.
+
+### Corrigido
+
+- Os textos de exemplo deixaram de citar o Tecnoblog: o formulário e a documentação usam `https://exemplo.com/`.
+
 ## [0.5.1] - 2026-10-28
 
 ### Corrigido

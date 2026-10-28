@@ -180,8 +180,6 @@ export default function App() {
 
   const isSourcesView = activeView === "sources";
   const isSettingsView = activeView === "settings";
-  const isDemoMode =
-    sources.length > 0 && sources.every((source) => source.isDemo);
 
   return (
     <div className="app-shell">
@@ -195,12 +193,7 @@ export default function App() {
         isSettingsView={isSettingsView}
       />
       <div className="workspace">
-        <Navigation
-          activeView={activeView}
-          sourceCount={sources.length}
-          isDemoMode={isDemoMode}
-          onChange={goToView}
-        />
+        <Navigation activeView={activeView} onChange={goToView} />
         <main className="main-content">
           {persistenceError && (
             <div className="error-state persistence-error" role="alert">

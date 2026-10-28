@@ -1,4 +1,5 @@
 import Icon from "./Icon.jsx";
+import packageJson from "../../package.json";
 
 const items = [
   { id: "all", label: "Todas as notícias", icon: "feed" },
@@ -8,19 +9,7 @@ const items = [
 
 const settingsItem = { id: "settings", label: "Configurações", icon: "settings" };
 
-export default function Navigation({
-  activeView,
-  sourceCount,
-  isDemoMode,
-  onChange,
-}) {
-  const sourceLabel =
-    sourceCount === 0
-      ? "Nenhuma fonte conectada"
-      : isDemoMode
-        ? "Modo demonstração"
-        : `${sourceCount} ${sourceCount === 1 ? "fonte conectada" : "fontes conectadas"}`;
-
+export default function Navigation({ activeView, onChange }) {
   return (
     <aside className="sidebar" aria-label="Navegação principal">
       <p className="sidebar-label">SEU ESPAÇO</p>
@@ -49,7 +38,7 @@ export default function Navigation({
           <Icon name={settingsItem.icon} />
           <span>{settingsItem.label}</span>
         </button>
-        <p className="sidebar-note">{sourceLabel}</p>
+        <p className="sidebar-note">versão {packageJson.version}</p>
       </div>
     </aside>
   );

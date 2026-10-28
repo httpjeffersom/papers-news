@@ -133,7 +133,7 @@ test("rejects documents that are not feeds", () => {
 test("generates initials ignoring connectors", () => {
   assert.equal(getInitials("Caderno de Tecnologia"), "CT");
   assert.equal(getInitials("the verge"), "VE");
-  assert.equal(getInitials("Tecnoblog"), "TE");
+  assert.equal(getInitials("Tecnologia Exemplo"), "TE");
   assert.equal(getInitials(""), "?");
 });
 

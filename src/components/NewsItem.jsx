@@ -22,9 +22,6 @@ export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
   const [openError, setOpenError] = useState("");
   const [imageFailed, setImageFailed] = useState(false);
   const publishedAtLabel = formatPublishedAt(article.publishedAt);
-  const sourceInitials =
-    article.sourceInitials ||
-    article.sourceName.slice(0, 2).toLocaleUpperCase("pt-BR");
 
   async function handleOpen() {
     setOpenError("");
@@ -39,7 +36,6 @@ export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
   return (
     <article className="news-item">
       <div className="article-meta">
-        <span className="source-avatar">{sourceInitials}</span>
         <span className="source-name">{article.sourceName}</span>
         <span className="meta-divider" />
         {publishedAtLabel ? (
