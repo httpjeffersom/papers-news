@@ -11,6 +11,7 @@ import { useTheme } from "./hooks/useTheme.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { ensureDesktopProxy } from "./services/desktopProxy.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
+import { pruneExpiredArticles } from "./utils/articleRetention.js";
 import { sortArticlesByDateDesc } from "./utils/articleSort.js";
 
 const maxRefreshFailuresShown = 3;
@@ -44,7 +45,12 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [savedIds, setSavedIds] = useState(() => initialState?.savedIds ?? []);
   const [sources, setSources] = useState(() => initialState?.sources ?? demoSources);
-  const [articles, setArticles] = useState(() => initialState?.articles ?? demoArticles);
+  const [articles, setArticles] = useState(() =>
+    pruneExpiredArticles(
+      initialState?.articles ?? demoArticles,
+      initialState?.savedIds ?? [],
+    ),
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState("");
   const [persistenceError, setPersistenceError] = useState("");
@@ -99,7 +105,7 @@ export default function App() {
     setRefreshError("");
     try {
       const result = await refreshNews(sources, articles, savedIds);
-      setArticles(result.articles);
+      setArticles(pruneExpiredArticles(result.articles, savedIds));
       if (result.errors.length > 0) {
         setRefreshError(
           `Atualização parcial. Não foi possível atualizar: ${formatRefreshFailures(result.errors)}. Notícias antigas permanecem disponíveis quando há cache.`,
@@ -114,11 +120,15 @@ export default function App() {
   }
 
   function toggleSaved(articleId) {
-    setSavedIds((current) =>
-      current.includes(articleId)
-        ? current.filter((id) => id !== articleId)
-        : [...current, articleId],
-    );
+    const isSaved = savedIds.includes(articleId);
+    const nextSavedIds = isSaved
+      ? savedIds.filter((id) => id !== articleId)
+      : [...savedIds, articleId];
+
+    setSavedIds(nextSavedIds);
+    if (isSaved) {
+      setArticles((current) => pruneExpiredArticles(current, nextSavedIds));
+    }
   }
 
   async function addSource(source) {
@@ -133,10 +143,12 @@ export default function App() {
         ...current.filter((item) => !item.isDemo),
         result.source,
       ]);
-      setArticles((current) => [
-        ...current.filter((article) => !article.isDemo),
-        ...result.articles,
-      ]);
+      setArticles((current) =>
+        pruneExpiredArticles(
+          [...current.filter((article) => !article.isDemo), ...result.articles],
+          savedIds,
+        ),
+      );
       return true;
     } catch (error) {
       console.error("Não foi possível adicionar a fonte:", error);

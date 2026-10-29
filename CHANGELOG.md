@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.5.3] - 2026-10-28
+
+### Adicionado
+
+- Retenção de 30 dias: publicações com data anterior a esse período são apagadas do armazenamento local para economizar espaço. Itens favoritados ficam guardados para sempre, e notícias sem data válida ou com data futura são mantidas.
+- A limpeza acontece ao abrir o aplicativo, ao atualizar o feed, ao adicionar uma fonte e ao desfavoritar uma publicação antiga.
+
 ## [0.5.2] - 2026-10-28
 
 ### Alterado
