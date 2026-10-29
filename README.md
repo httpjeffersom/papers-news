@@ -8,7 +8,7 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 
 **Código aberto, licença MIT, dados 100% locais e sem telemetria.**
 
-![Ilustração de uma publicação no Papers News](public/images/demo-learning.svg)
+![Captura da interface do Papers News exibindo notícias do Tecnoblog e da Quatro Rodas](public/images/app-screenshot.png)
 
 ## Privacidade e dados
 
