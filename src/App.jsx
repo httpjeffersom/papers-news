@@ -7,6 +7,7 @@ import SettingsView from "./components/SettingsView.jsx";
 import SourcesView from "./components/SourcesView.jsx";
 import { demoArticles, demoSources } from "./data/demoArticles.js";
 import { useFontSize } from "./hooks/useFontSize.js";
+import { useRetentionDays } from "./hooks/useRetentionDays.js";
 import { useTheme } from "./hooks/useTheme.js";
 import { loadAppState, saveAppState } from "./services/appStorage.js";
 import { ensureDesktopProxy } from "./services/desktopProxy.js";
@@ -40,6 +41,7 @@ export default function App() {
   const [initialState] = useState(loadAppState);
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize } = useFontSize();
+  const { retentionDays, setRetentionDays } = useRetentionDays();
   const [activeView, setActiveView] = useState("all");
   const [readingArticle, setReadingArticle] = useState(null);
   const [search, setSearch] = useState("");
@@ -49,6 +51,8 @@ export default function App() {
     pruneExpiredArticles(
       initialState?.articles ?? demoArticles,
       initialState?.savedIds ?? [],
+      Date.now(),
+      retentionDays,
     ),
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -105,7 +109,9 @@ export default function App() {
     setRefreshError("");
     try {
       const result = await refreshNews(sources, articles, savedIds);
-      setArticles(pruneExpiredArticles(result.articles, savedIds));
+      setArticles(
+        pruneExpiredArticles(result.articles, savedIds, Date.now(), retentionDays),
+      );
       if (result.errors.length > 0) {
         setRefreshError(
           `Atualização parcial. Não foi possível atualizar: ${formatRefreshFailures(result.errors)}. Notícias antigas permanecem disponíveis quando há cache.`,
@@ -127,8 +133,17 @@ export default function App() {
 
     setSavedIds(nextSavedIds);
     if (isSaved) {
-      setArticles((current) => pruneExpiredArticles(current, nextSavedIds));
+      setArticles((current) =>
+        pruneExpiredArticles(current, nextSavedIds, Date.now(), retentionDays),
+      );
     }
+  }
+
+  function changeRetentionDays(nextDays) {
+    setRetentionDays(nextDays);
+    setArticles((current) =>
+      pruneExpiredArticles(current, savedIds, Date.now(), nextDays),
+    );
   }
 
   async function addSource(source) {
@@ -147,6 +162,8 @@ export default function App() {
         pruneExpiredArticles(
           [...current.filter((article) => !article.isDemo), ...result.articles],
           savedIds,
+          Date.now(),
+          retentionDays,
         ),
       );
       return true;
@@ -218,6 +235,8 @@ export default function App() {
               onThemeChange={setTheme}
               fontSize={fontSize}
               onFontSizeChange={setFontSize}
+              retentionDays={retentionDays}
+              onRetentionDaysChange={changeRetentionDays}
             />
           ) : isSourcesView ? (
             <SourcesView

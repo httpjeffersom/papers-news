@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.0] - 2026-10-28
+
+### Adicionado
+
+- Cartão **Armazenamento**, em Configurações, para escolher por quanto tempo as notícias ficam guardadas: 1, 5, 10, 15, 20 ou 30 dias, ou um valor personalizado entre 1 e 30.
+- A preferência fica salva no computador e é aplicada na hora: ao diminuir o prazo, as notícias mais antigas são apagadas imediatamente. Notícias já apagadas não voltam ao aumentar o prazo.
+- Favoritos continuam guardados para sempre, independentemente do prazo escolhido.
+
+### Alterado
+
+- A retenção padrão permanece em 30 dias para quem ainda não escolheu outro valor.
+
 ## [0.5.3] - 2026-10-28
 
 ### Adicionado

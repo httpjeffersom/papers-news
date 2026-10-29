@@ -1321,6 +1321,122 @@
   font-size: 0.6875rem;
 }
 
+.retention-picker {
+  display: grid;
+  width: min(100%, 560px);
+  gap: 14px;
+  margin-inline: auto;
+}
+
+.retention-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+
+.retention-option {
+  display: grid;
+  min-height: 62px;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--bg-layer-alt);
+  color: var(--text-2);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.retention-option:hover {
+  background: var(--bg-subtle);
+  color: var(--text-1);
+}
+
+.retention-option[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.retention-value {
+  color: var(--text-1);
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.retention-option[aria-checked="true"] .retention-value {
+  color: var(--accent-text);
+}
+
+.retention-unit {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.retention-option[data-retention-days="custom"] .retention-unit {
+  font-size: 0.5625rem;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.retention-custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.retention-custom-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-2);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.retention-custom input {
+  width: 74px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-control);
+  background: var(--bg-layer);
+  color: var(--text-1);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.retention-custom input:hover {
+  background: var(--bg-layer-alt);
+}
+
+.retention-custom input:focus {
+  border-color: var(--accent);
+  outline: 0;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
 .font-preview {
   position: relative;
   width: min(100%, 640px);

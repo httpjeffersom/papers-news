@@ -27,11 +27,11 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Cadastro e remoção de sites e feeds RSS/Atom.
 - Atualização das publicações das fontes cadastradas.
 - Fontes, notícias em cache e favoritos preservados no armazenamento local.
-- Retenção de 30 dias: notícias antigas são apagadas para liberar espaço, mas os favoritos ficam guardados para sempre.
+- Retenção configurável de 1 a 30 dias: notícias antigas são apagadas para liberar espaço, mas os favoritos ficam guardados para sempre.
 - Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
 - Interface Fluent Design (Windows 11), com tema claro ou escuro.
-- Configurações de tema e de tamanho do texto (cinco níveis, com pré-visualização).
+- Configurações de tema, tamanho do texto e retenção das notícias.
 - Modo de leitura dentro do app, no estilo Instapaper, sem menus e anúncios.
 - Interface responsiva em português, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
