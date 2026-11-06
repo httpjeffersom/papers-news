@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.1] - 2026-11-06
+
+### Corrigido
+
+- O proxy valida cada destino de redirecionamento para impedir que uma URL pública redirecione para endereços locais ou privados.
+- O proxy limita o seguimento a cinco redirecionamentos consecutivos.
+
 ## [0.6.0] - 2026-10-28
 
 ### Adicionado

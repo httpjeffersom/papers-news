@@ -6,9 +6,10 @@ const PORT = Number(process.env.FEED_PROXY_PORT || 8787);
 const ALLOW_PRIVATE_HOSTS = process.env.FEED_PROXY_ALLOW_PRIVATE === "1";
 const REQUEST_TIMEOUT_MS = 25000;
 const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
+const MAX_REDIRECTS = 5;
 const WATCHDOG_INTERVAL_MS = 2000;
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.6.0";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.6.1";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -118,17 +119,32 @@ function decodeBody(buffer, contentType) {
 }
 
 async function fetchTarget(target) {
-  const response = await fetch(target, {
-    redirect: "follow",
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    headers: {
-      "user-agent": USER_AGENT,
-      accept:
-        "application/rss+xml, application/atom+xml, application/xml, text/xml, application/json, text/html;q=0.9, */*;q=0.8",
-      "accept-language": "pt-BR,pt;q=0.9,en;q=0.8",
-      "cache-control": "no-cache",
-    },
-  });
+  let currentTarget = target;
+  let response;
+
+  for (let redirects = 0; ; redirects += 1) {
+    response = await fetch(currentTarget, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: {
+        "user-agent": USER_AGENT,
+        accept:
+          "application/rss+xml, application/atom+xml, application/xml, text/xml, application/json, text/html;q=0.9, */*;q=0.8",
+        "accept-language": "pt-BR,pt;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+      },
+    });
+
+    const location = response.headers.get("location");
+    if (![301, 302, 303, 307, 308].includes(response.status) || !location) break;
+    if (redirects >= MAX_REDIRECTS) {
+      throw new Error("O site redirecionou vezes demais.");
+    }
+
+    const redirectTarget = parseTarget(new URL(location, currentTarget).href);
+    await response.body?.cancel();
+    currentTarget = redirectTarget;
+  }
 
   const declaredLength = Number(response.headers.get("content-length") || 0);
   if (declaredLength > MAX_RESPONSE_BYTES) {
@@ -144,77 +160,81 @@ async function fetchTarget(target) {
   return {
     status: response.status,
     ok: response.ok,
-    finalUrl: response.url || target.href,
+    finalUrl: response.url || currentTarget.href,
     contentType,
     body: decodeBody(buffer, contentType),
   };
 }
 
-const server = http.createServer(async (request, response) => {
-  if (request.method === "OPTIONS") {
-    response.writeHead(204, CORS_HEADERS);
-    response.end();
-    return;
-  }
+let server;
 
-  if (request.method !== "GET") {
-    sendJson(response, 405, { error: "Método não permitido. Use GET." });
-    return;
-  }
+if (require.main === module) {
+  server = http.createServer(async (request, response) => {
+    if (request.method === "OPTIONS") {
+      response.writeHead(204, CORS_HEADERS);
+      response.end();
+      return;
+    }
 
-  const requestUrl = new URL(request.url || "/", `http://${HOST}:${PORT}`);
+    if (request.method !== "GET") {
+      sendJson(response, 405, { error: "Método não permitido. Use GET." });
+      return;
+    }
 
-  if (requestUrl.pathname === "/health") {
-    sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.6.0" });
-    return;
-  }
+    const requestUrl = new URL(request.url || "/", `http://${HOST}:${PORT}`);
 
-  if (requestUrl.pathname !== "/fetch") {
-    sendText(
-      response,
-      200,
-      [
-        "Proxy local do Papers News.",
-        "Uso: /fetch?url=https%3A%2F%2Fexemplo.com%2Ffeed%2F",
-        "Saúde: /health",
-      ].join("\n"),
-    );
-    return;
-  }
+    if (requestUrl.pathname === "/health") {
+      sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.6.1" });
+      return;
+    }
 
-  const rawTarget = requestUrl.searchParams.get("url");
-  if (!rawTarget) {
-    sendJson(response, 400, { error: "Informe a URL de destino em ?url=." });
-    return;
-  }
+    if (requestUrl.pathname !== "/fetch") {
+      sendText(
+        response,
+        200,
+        [
+          "Proxy local do Papers News.",
+          "Uso: /fetch?url=https%3A%2F%2Fexemplo.com%2Ffeed%2F",
+          "Saúde: /health",
+        ].join("\n"),
+      );
+      return;
+    }
 
-  let target;
-  try {
-    target = parseTarget(rawTarget);
-  } catch (error) {
-    sendJson(response, 400, { error: error.message });
-    return;
-  }
+    const rawTarget = requestUrl.searchParams.get("url");
+    if (!rawTarget) {
+      sendJson(response, 400, { error: "Informe a URL de destino em ?url=." });
+      return;
+    }
 
-  try {
-    const result = await fetchTarget(target);
-    sendText(response, result.status, result.body, {
-      "x-final-url": result.finalUrl,
-      "x-feed-content-type": result.contentType,
-    });
-  } catch (error) {
-    const message =
-      error?.name === "TimeoutError" || error?.name === "AbortError"
-        ? "O site demorou demais para responder."
-        : error?.message || "Falha ao acessar o site.";
-    sendText(response, 502, message, { "x-final-url": target.href });
-  }
-});
+    let target;
+    try {
+      target = parseTarget(rawTarget);
+    } catch (error) {
+      sendJson(response, 400, { error: error.message });
+      return;
+    }
 
-server.listen(PORT, HOST, () => {
-  console.log(`Proxy de feeds do Papers News em http://${HOST}:${PORT}`);
-  watchOwnerProcess();
-});
+    try {
+      const result = await fetchTarget(target);
+      sendText(response, result.status, result.body, {
+        "x-final-url": result.finalUrl,
+        "x-feed-content-type": result.contentType,
+      });
+    } catch (error) {
+      const message =
+        error?.name === "TimeoutError" || error?.name === "AbortError"
+          ? "O site demorou demais para responder."
+          : error?.message || "Falha ao acessar o site.";
+      sendText(response, 502, message, { "x-final-url": target.href });
+    }
+  });
+
+  server.listen(PORT, HOST, () => {
+    console.log(`Proxy de feeds do Papers News em http://${HOST}:${PORT}`);
+    watchOwnerProcess();
+  });
+}
 
 function isProcessAlive(pid) {
   try {
@@ -313,18 +333,22 @@ function watchOwnerProcess() {
   retryTimer.unref();
 }
 
-server.on("error", (error) => {
-  if (error.code === "EADDRINUSE") {
-    console.error(`A porta ${PORT} já está em uso.`);
-  } else {
-    console.error("Falha ao iniciar o proxy de feeds:", error.message);
-  }
-  process.exit(1);
-});
-
-for (const signal of ["SIGINT", "SIGTERM"]) {
-  process.on(signal, () => {
-    server.close(() => process.exit(0));
-    setTimeout(() => process.exit(0), 500).unref();
+if (server) {
+  server.on("error", (error) => {
+    if (error.code === "EADDRINUSE") {
+      console.error(`A porta ${PORT} já está em uso.`);
+    } else {
+      console.error("Falha ao iniciar o proxy de feeds:", error.message);
+    }
+    process.exit(1);
   });
+
+  for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.on(signal, () => {
+      server.close(() => process.exit(0));
+      setTimeout(() => process.exit(0), 500).unref();
+    });
+  }
 }
+
+module.exports = { fetchTarget, parseTarget };
