@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.2] - 2026-11-08
+
+### Adicionado
+
+- Novo ícone do aplicativo: a marca de papel dobrado passa a aparecer na janela, no executável do Windows e nos favicons do site, com cantos arredondados.
+
 ## [0.6.1] - 2026-11-06
 
 ### Corrigido

@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralino.js/main/bin/resources/neutralino.config.schema.json",
   "applicationId": "com.papersnews.app",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "applicationName": "Papers News",
   "author": "Jeffersom",
   "description": "Leitor pessoal de notícias RSS/Atom para desktop.",
@@ -24,6 +24,7 @@
   "modes": {
     "window": {
       "title": "Papers News",
+      "icon": "/resources/app-icon.png",
       "width": 1120,
       "height": 780,
       "minWidth": 720,
