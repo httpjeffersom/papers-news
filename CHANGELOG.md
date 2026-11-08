@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.3] - 2026-11-08
+
+### Alterado
+
+- O cabeçalho passa a exibir o ícone do aplicativo no lugar da marca de barras, acompanhado do nome **Papers News** em tipografia serifada, no estilo de mastheads de jornal.
+
 ## [0.6.2] - 2026-11-08
 
 ### Adicionado

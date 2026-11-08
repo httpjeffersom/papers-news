@@ -12,6 +12,9 @@
     -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI Variable",
     "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  /* Marca — serifa editorial, no espírito de mastheads de jornal. */
+  --font-brand: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+    "Times New Roman", serif;
 
   --font-size-caption: 0.75rem;   /* 12 px */
   --font-size-body: 0.875rem;     /* 14 px */

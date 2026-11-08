@@ -52,38 +52,21 @@
   background: var(--bg-subtle);
 }
 
-.brand-mark {
-  display: flex;
-  width: 28px;
-  height: 28px;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border: 1px solid var(--accent-border);
-  border-radius: 6px;
-  background: var(--accent-soft);
+.brand-icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--stroke-strong), var(--shadow-2);
+  object-fit: contain;
 }
-
-.brand-mark span {
-  width: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--accent-text);
-}
-
-.brand-mark span:nth-child(1) { height: 8px; }
-.brand-mark span:nth-child(2) { height: 13px; }
-.brand-mark span:nth-child(3) { height: 10px; }
 
 .brand-name {
-  font-family: var(--font-display);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.brand-name span {
-  color: var(--accent-text);
-  font-weight: 600;
+  font-family: var(--font-brand);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1;
 }
 
 /* Busca — TextBox do Fluent */

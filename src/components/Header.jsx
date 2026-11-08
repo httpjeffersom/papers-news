@@ -17,14 +17,16 @@ export default function Header({
         className="brand"
         type="button"
         onClick={onHome}
-        aria-label="papersnews, ir para todas as notícias"
+        aria-label="Papers News, ir para todas as notícias"
       >
-        <span className="brand-mark" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </span>
-        <span className="brand-name">papers<span>news</span></span>
+        <img
+          className="brand-icon"
+          src="/app-icon.png"
+          alt=""
+          aria-hidden="true"
+          draggable="false"
+        />
+        <span className="brand-name">Papers News</span>
       </button>
 
       {!isSettingsView && (
