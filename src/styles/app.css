@@ -53,11 +53,10 @@
 }
 
 .brand-icon {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   flex: none;
-  border-radius: 8px;
-  box-shadow: 0 0 0 1px var(--stroke-strong), var(--shadow-2);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 32%));
   object-fit: contain;
 }
 
@@ -679,11 +678,16 @@
 }
 
 .article-summary {
+  display: -webkit-box;
   margin: 8px 0 0;
+  overflow: hidden;
   color: var(--text-2);
   font-size: var(--font-size-body);
   line-height: 1.6;
   overflow-wrap: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
 }
 
 .article-actions {

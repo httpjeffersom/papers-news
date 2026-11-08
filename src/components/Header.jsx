@@ -21,7 +21,7 @@ export default function Header({
       >
         <img
           className="brand-icon"
-          src="/app-icon-header.png"
+          src="/mascot.png"
           alt=""
           aria-hidden="true"
           draggable="false"

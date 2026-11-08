@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.5] - 2026-11-08
+
+### Alterado
+
+- Os olhos do mascote agora são pretos em todos os ícones: executável, favicons e apple-touch-icon.
+- O cabeçalho exibe apenas o mascote recortado, sem o quadrado branco do ícone ao redor.
+- As prévias das notícias são limitadas a cinco linhas, evitando que artigos longos ocupem o feed inteiro.
+
 ## [0.6.4] - 2026-11-08
 
 ### Alterado
