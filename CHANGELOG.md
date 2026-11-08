@@ -15,6 +15,11 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 
 - Ao remover uma fonte, o aplicativo pede confirmação com o nome escolhido antes de excluí-la, em um diálogo com animação suave de entrada.
 
+### Corrigido
+
+- Ao abrir uma notícia, o leitor passa a buscar a página original quando o feed traz apenas a prévia, exibindo a matéria completa em vez das primeiras linhas.
+- Textos que vinham separados apenas por quebras de linha agora aparecem divididos em parágrafos no leitor.
+
 ## [0.6.4] - 2026-11-08
 
 ### Alterado

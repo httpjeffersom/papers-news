@@ -10,6 +10,10 @@ import { resolveHttpUrl } from "./feedParser.js";
 
 export const minReadableLength = 280;
 
+// A partir deste tamanho consideramos que o próprio feed trouxe a matéria
+// inteira; abaixo disso tratamos como prévia e buscamos a página original.
+export const minCompleteFeedLength = 1200;
+
 const removableTags = new Set([
   "script",
   "style",
@@ -86,6 +90,23 @@ const emptyTagsToPrune = new Set([
   "li",
   "blockquote",
   "figcaption",
+]);
+
+const blockTags = new Set([
+  "p",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "ul",
+  "ol",
+  "li",
+  "blockquote",
+  "pre",
+  "table",
+  "figure",
+  "hr",
 ]);
 
 const junkPattern =
@@ -254,6 +275,39 @@ function serializeChildren(root) {
   return html;
 }
 
+function hasBlockStructure(root) {
+  for (const element of [...root.getElementsByTagName("*")]) {
+    if (blockTags.has(tagNameOf(element))) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Alguns feeds e páginas separam os parágrafos só com quebras de linha (ou com
+ * `<br>`), o que viraria um bloco único no leitor. Quando não há estrutura de
+ * blocos, recriamos os parágrafos a partir das linhas do texto.
+ */
+function splitLooseTextIntoParagraphs(root, document) {
+  if (hasBlockStructure(root)) return;
+
+  const lines = (root.textContent || "")
+    .replace(/\r\n?/g, "\n")
+    .split(/\n+/)
+    .map((line) => line.replace(/[ \t]+/g, " ").trim())
+    .filter(Boolean);
+
+  if (lines.length < 2) return;
+
+  while (root.firstChild) root.removeChild(root.firstChild);
+
+  for (const line of lines) {
+    const paragraph = document.createElement("p");
+    paragraph.appendChild(document.createTextNode(line));
+    root.appendChild(paragraph);
+  }
+}
+
 function sanitizeFragment(html, baseUrl) {
   const document = parseHtmlDocument(
     `<div id="papers-news-reader-root">${html}</div>`,
@@ -264,6 +318,7 @@ function sanitizeFragment(html, baseUrl) {
   const root = document.createElement("div");
   sanitizeChildren(source, document, baseUrl, root);
   pruneEmptyElements(root);
+  splitLooseTextIntoParagraphs(root, document);
 
   return {
     html: serializeChildren(root),
@@ -389,6 +444,7 @@ export function extractArticleContent(pageHtml, pageUrl = "") {
   const root = document.createElement("div");
   sanitizeChildren(container, document, pageUrl, root);
   pruneEmptyElements(root);
+  splitLooseTextIntoParagraphs(root, document);
 
   const text = (root.textContent || "").replace(/\s+/g, " ").trim();
   return {
@@ -470,32 +526,49 @@ function summaryFallback(article, limited) {
   };
 }
 
-export async function loadArticleContent(article) {
+function readableFrom(article, source, origin, limited) {
+  return {
+    html: removeDuplicateImage(source.html, article.image),
+    text: source.text,
+    length: source.length,
+    origin,
+    limited,
+  };
+}
+
+export async function loadArticleContent(
+  article,
+  { fetchPage = fetchArticleHtml } = {},
+) {
   const fromFeed = hasFeedContent(article);
-  if (fromFeed) {
-    return {
-      ...fromFeed,
-      html: removeDuplicateImage(fromFeed.html, article.image),
-      origin: "feed",
-      limited: false,
-    };
+
+  // Muitos feeds trazem apenas a chamada da matéria (algumas centenas de
+  // caracteres). Nesse caso o texto do feed não basta: buscamos a página
+  // original para o leitor exibir a matéria inteira, e não só a prévia.
+  if (fromFeed && fromFeed.length >= minCompleteFeedLength) {
+    return readableFrom(article, fromFeed, "feed", false);
   }
 
+  let pageUsable = false;
+
   try {
-    const pageHtml = await fetchArticleHtml(article.url);
+    const pageHtml = await fetchPage(article.url);
     const extracted = extractArticleContent(pageHtml, article.url);
 
     if (extracted.length >= minReadableLength) {
-      return {
-        ...extracted,
-        html: removeDuplicateImage(extracted.html, article.image),
-        origin: "page",
-        limited: false,
-      };
+      pageUsable = true;
+
+      if (!fromFeed || extracted.length > fromFeed.length) {
+        return readableFrom(article, extracted, "page", false);
+      }
     }
   } catch {
-    // Sem rede ou site bloqueando: o resumo do feed ainda é útil.
-    return summaryFallback(article, true);
+    // Sem rede ou site bloqueando: o texto do feed ainda é útil.
+    pageUsable = false;
+  }
+
+  if (fromFeed) {
+    return readableFrom(article, fromFeed, "feed", !pageUsable);
   }
 
   return summaryFallback(article, true);

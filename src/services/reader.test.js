@@ -4,6 +4,7 @@ import { DOMParser } from "@xmldom/xmldom";
 import {
   extractArticleContent,
   hasFeedContent,
+  loadArticleContent,
   removeDuplicateImage,
   sanitizeArticleHtml,
 } from "./reader.js";
@@ -114,4 +115,98 @@ test("recognizes long feed content and rejects short summaries", () => {
   assert.ok(hasFeedContent(withContent));
   assert.equal(hasFeedContent({ url: "https://blog.example/", content: "<p>Curto</p>" }), null);
   assert.equal(hasFeedContent({ url: "https://blog.example/" }), null);
+});
+
+const feedExcerpt = "Resumo da matéria publicado no feed. ".repeat(14);
+
+const pageWithFullArticle = [
+  "<html><head><title>Matéria completa</title></head><body>",
+  '<article class="post-content"><h1>Matéria completa</h1>',
+  '<p>Parágrafo completo da matéria, com bastante texto para a leitura no aplicativo.</p>'.repeat(12),
+  "</article></body></html>",
+].join("");
+
+test("fetches the page when the feed only brings the excerpt", async () => {
+  const article = {
+    url: "https://site.example/noticia/1",
+    summary: feedExcerpt,
+    content: `<p>${feedExcerpt}</p>`,
+  };
+  let fetchCalls = 0;
+
+  const result = await loadArticleContent(article, {
+    fetchPage: async () => {
+      fetchCalls += 1;
+      return pageWithFullArticle;
+    },
+  });
+
+  assert.equal(fetchCalls, 1);
+  assert.equal(result.origin, "page");
+  assert.equal(result.limited, false);
+  assert.ok(result.length > feedExcerpt.length);
+  assert.match(result.html, /Parágrafo completo/);
+});
+
+test("falls back to the feed text when the page cannot be read", async () => {
+  const article = {
+    url: "https://site.example/noticia/1",
+    summary: feedExcerpt,
+    content: `<p>${feedExcerpt}</p>`,
+  };
+
+  const result = await loadArticleContent(article, {
+    fetchPage: async () => {
+      throw new Error("bloqueado");
+    },
+  });
+
+  assert.equal(result.origin, "feed");
+  assert.equal(result.limited, true);
+  assert.match(result.html, /Resumo da matéria/);
+});
+
+test("keeps the feed content when it already contains the whole article", async () => {  const fullText = "Conteúdo completo da publicação. ".repeat(80);
+  const article = {
+    url: "https://site.example/noticia/1",
+    summary: "Resumo",
+    content: `<p>${fullText}</p>`,
+  };
+  let fetchCalls = 0;
+
+  const result = await loadArticleContent(article, {
+    fetchPage: async () => {
+      fetchCalls += 1;
+      return pageWithFullArticle;
+    },
+  });
+
+  assert.equal(fetchCalls, 0);
+  assert.equal(result.origin, "feed");
+  assert.equal(result.limited, false);
+  assert.match(result.html, /Conteúdo completo da publicação/);
+});
+
+test("turns line breaks into paragraphs when there is no block markup", () => {
+  const html = sanitizeArticleHtml(
+    [
+      "Primeira linha da materia.",
+      "Segunda linha, com um pouco mais de texto.",
+      "Terceira linha que fecha o texto.",
+    ].join("\n"),
+    "https://blog.example/post",
+  );
+
+  assert.match(html, /<p>Primeira linha da materia\.<\/p>/);
+  assert.match(html, /<p>Segunda linha, com um pouco mais de texto\.<\/p>/);
+  assert.match(html, /<p>Terceira linha que fecha o texto\.<\/p>/);
+});
+
+test("preserves existing paragraphs instead of splitting them", () => {
+  const html = sanitizeArticleHtml(
+    "<p>Paragrafo um.</p><p>Paragrafo dois.</p>",
+    "https://blog.example/post",
+  );
+
+  assert.equal(html, "<p>Paragrafo um.</p><p>Paragrafo dois.</p>");
 });
