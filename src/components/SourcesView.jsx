@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Icon from "./Icon.jsx";
 
 export default function SourcesView({
@@ -13,6 +14,60 @@ export default function SourcesView({
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [validationError, setValidationError] = useState("");
+  const [pendingRemoval, setPendingRemoval] = useState(null);
+  const dialogRef = useRef(null);
+  const cancelRef = useRef(null);
+  const previousFocus = useRef(null);
+
+  useEffect(() => {
+    if (!pendingRemoval) return undefined;
+
+    previousFocus.current = document.activeElement;
+    cancelRef.current?.focus();
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setPendingRemoval(null);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus.current?.focus?.();
+    };
+  }, [pendingRemoval]);
+
+  function handleConfirmRemoval() {
+    if (!pendingRemoval) return;
+    const { id } = pendingRemoval;
+    setPendingRemoval(null);
+    onRemoveSource(id);
+  }
 
   const sourceCountLabel =
     totalSources === 0
@@ -119,7 +174,6 @@ export default function SourcesView({
         <ul className="source-list">
           {sources.map((source) => (
             <li className="source-row" key={source.id}>
-              <span className="source-row-icon"><Icon name="source" /></span>
               <span className="source-row-details">
                 <span className="source-row-name">
                   {source.name}
@@ -133,7 +187,7 @@ export default function SourcesView({
               <button
                 className="icon-action remove-source"
                 type="button"
-                onClick={() => onRemoveSource(source.id)}
+                onClick={() => setPendingRemoval(source)}
                 aria-label={`Remover ${source.name}`}
                 title="Remover fonte"
               >
@@ -143,6 +197,48 @@ export default function SourcesView({
           ))}
         </ul>
       )}
+
+      {pendingRemoval &&
+        createPortal(
+          <div
+            className="confirm-overlay"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setPendingRemoval(null);
+            }}
+          >
+            <div
+              className="confirm-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-remove-title"
+              aria-describedby="confirm-remove-description"
+              ref={dialogRef}
+            >
+              <span className="confirm-dialog-icon" aria-hidden="true">
+                <Icon name="trash" />
+              </span>
+              <h2 id="confirm-remove-title">Remover fonte?</h2>
+              <p id="confirm-remove-description">
+                Você quer realmente remover <strong>{pendingRemoval.name}</strong> da sua lista
+                de fontes?
+              </p>
+              <div className="confirm-actions">
+                <button
+                  className="confirm-cancel"
+                  type="button"
+                  onClick={() => setPendingRemoval(null)}
+                  ref={cancelRef}
+                >
+                  Cancelar
+                </button>
+                <button className="confirm-remove" type="button" onClick={handleConfirmRemoval}>
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </section>
   );
 }

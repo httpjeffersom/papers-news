@@ -8,6 +8,11 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 
 - Os olhos do mascote agora são pretos em todos os ícones: executável, favicons e apple-touch-icon.
 - As prévias das notícias são limitadas a cinco linhas, evitando que artigos longos ocupem o feed inteiro.
+- A lista de fontes não exibe mais o ícone de documento ao lado de cada fonte cadastrada.
+
+### Adicionado
+
+- Ao remover uma fonte, o aplicativo pede confirmação com o nome escolhido antes de excluí-la, em um diálogo com animação suave de entrada.
 
 ## [0.6.4] - 2026-11-08
 
