@@ -9,7 +9,7 @@ const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
 const MAX_REDIRECTS = 5;
 const WATCHDOG_INTERVAL_MS = 2000;
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.6.3";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.6.4";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -184,7 +184,7 @@ if (require.main === module) {
     const requestUrl = new URL(request.url || "/", `http://${HOST}:${PORT}`);
 
     if (requestUrl.pathname === "/health") {
-      sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.6.3" });
+      sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.6.4" });
       return;
     }
 

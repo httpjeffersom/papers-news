@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.6.4] - 2026-11-08
+
+### Alterado
+
+- Os olhos do mascote no ícone do cabeçalho agora são pretos, para ficarem visíveis sobre o fundo claro do aplicativo.
+
 ## [0.6.3] - 2026-11-08
 
 ### Alterado
