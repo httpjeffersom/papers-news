@@ -102,17 +102,6 @@ export default function ArticleReader({ article, onClose }) {
     }
   }
 
-  function handleContentClick(event) {
-    const anchor = event.target.closest?.("a[href]");
-    if (!anchor) return;
-
-    event.preventDefault();
-    void openExternalUrl(anchor.href).catch((error) => {
-      console.error("Não foi possível abrir o link da publicação:", error);
-      setOpenError("Não foi possível abrir o link.");
-    });
-  }
-
   const publishedAtLabel = formatPublishedAt(article.publishedAt);
   const isLoading = state.status === "loading";
   const content = state.content;
@@ -194,7 +183,6 @@ export default function ArticleReader({ article, onClose }) {
               )}
               <div
                 className="reader-content"
-                onClick={handleContentClick}
                 dangerouslySetInnerHTML={{ __html: content?.html || "" }}
               />
               {!content?.html && (

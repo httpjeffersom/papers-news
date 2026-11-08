@@ -1872,16 +1872,6 @@
   font-size: 1.25rem;
 }
 
-.reader-content a {
-  color: var(--paper-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.reader-content a:hover {
-  text-decoration-thickness: 2px;
-}
-
 .reader-content img {
   width: 100%;
   height: auto;

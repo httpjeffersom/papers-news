@@ -3,8 +3,8 @@
 // A ideia é simples: transformar o HTML do feed (ou da própria página) em um
 // texto limpo, sem menus, scripts, propagandas ou formulários, para ler dentro
 // do aplicativo. O HTML resultante é montado a partir de uma lista de tags
-// permitidas — nenhum atributo do site original é copiado além de links e
-// imagens seguros.
+// permitidas — nenhum atributo do site original é copiado, e os links do texto
+// viram apenas texto (sem navegação dentro do leitor).
 import { fetchArticleHtml } from "./newsService.js";
 import { resolveHttpUrl } from "./feedParser.js";
 
@@ -56,7 +56,6 @@ const allowedTags = new Set([
   "ol",
   "li",
   "blockquote",
-  "a",
   "strong",
   "em",
   "b",
@@ -205,21 +204,6 @@ function sanitizeChildren(sourceNode, document, baseUrl, target) {
     if (tag === "img") {
       const image = buildImage(child, document, baseUrl);
       if (image) target.appendChild(image);
-      continue;
-    }
-
-    if (tag === "a") {
-      const href = resolveHttpUrl(child.getAttribute("href") || "", baseUrl);
-      const anchor = document.createElement(href ? "a" : "span");
-
-      if (href) {
-        anchor.setAttribute("href", href);
-        anchor.setAttribute("target", "_blank");
-        anchor.setAttribute("rel", "noopener noreferrer");
-      }
-
-      sanitizeChildren(child, document, baseUrl, anchor);
-      target.appendChild(anchor);
       continue;
     }
 

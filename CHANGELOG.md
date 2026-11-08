@@ -9,6 +9,7 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 - Os olhos do mascote agora são pretos em todos os ícones: executável, favicons e apple-touch-icon.
 - As prévias das notícias são limitadas a cinco linhas, evitando que artigos longos ocupem o feed inteiro.
 - A lista de fontes não exibe mais o ícone de documento ao lado de cada fonte cadastrada.
+- O modo de leitura não exibe mais links no texto: eles aparecem como texto comum, sem abrir nada ao clicar.
 - O ícone do executável agora preenche todo o espaço do arquivo de ícone, deixando o mascote maior e mais nítido no Windows.
 
 ### Adicionado

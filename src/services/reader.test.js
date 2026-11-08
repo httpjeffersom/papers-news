@@ -38,10 +38,9 @@ test("sanitizes feed HTML and resolves relative links and images", () => {
 
   assert.match(html, /<p>Texto <strong>forte<\/strong><\/p>/);
   assert.match(html, /<img src="https:\/\/blog\.example\/imagem\.jpg" alt="Foto"/);
-  assert.match(html, /<a href="https:\/\/blog\.example\/noticia"/);
-  assert.match(html, /rel="noopener noreferrer"/);
-  assert.doesNotMatch(html, /script|iframe|onclick|onerror|javascript:/i);
+  assert.match(html, /Ler mais/);
   assert.match(html, /Perigoso/);
+  assert.doesNotMatch(html, /<a\b|href=|script|iframe|onclick|onerror|javascript:/i);
 });
 
 test("removes tracking pixels and hidden content", () => {
