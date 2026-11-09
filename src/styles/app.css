@@ -1508,14 +1508,16 @@
 }
 
 .retention-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
 }
 
 .retention-option {
   display: grid;
   min-height: 62px;
+  flex: 1 1 56px;
   align-content: center;
   justify-items: center;
   gap: 2px;
@@ -1560,6 +1562,14 @@
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+}
+
+/* O chip "Personalizado" acompanha o próprio texto (em vez de ser esticado
+   como os demais), então o rótulo nunca é cortado — nem no maior tamanho de
+   fonte. Quando falta espaço, ele desce sozinho para a linha de baixo. */
+.retention-option[data-retention-days="custom"] {
+  flex: 0 0 auto;
+  padding-inline: 14px;
 }
 
 .retention-option[data-retention-days="custom"] .retention-unit {
