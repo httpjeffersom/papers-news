@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 import { DOMParser } from "@xmldom/xmldom";
 import {
@@ -208,4 +208,27 @@ test("preserves existing paragraphs instead of splitting them", () => {
   );
 
   assert.equal(html, "<p>Paragrafo um.</p><p>Paragrafo dois.</p>");
+});
+
+test("keeps demo content without fetching a page or showing the notice", async () => {
+  let fetchCalls = 0;
+  const article = {
+    url: "https://example.com/",
+    isDemo: true,
+    summary: "Resumo da demonstração.",
+    content:
+      "<p>Publicação fictícia usada para demonstrar o modo de leitura do aplicativo, com texto suficiente para o leitor considerar o conteúdo completo e não buscar a página original.</p><h2>Uma leitura sem distrações</h2><p>Texto de exemplo com parágrafos para testar a leitura dentro do Papers News, incluindo títulos e blocos de texto separados.</p>",
+  };
+
+  const result = await loadArticleContent(article, {
+    fetchPage: async () => {
+      fetchCalls += 1;
+      return pageWithFullArticle;
+    },
+  });
+
+  assert.equal(fetchCalls, 0);
+  assert.equal(result.origin, "feed");
+  assert.equal(result.limited, false);
+  assert.match(result.html, /Uma leitura sem distrações/);
 });

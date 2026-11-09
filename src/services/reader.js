@@ -526,6 +526,12 @@ export async function loadArticleContent(
 ) {
   const fromFeed = hasFeedContent(article);
 
+  // As publicações de demonstração já trazem o texto inteiro no próprio dado
+  // local: não há página original para buscar.
+  if (article?.isDemo && fromFeed) {
+    return readableFrom(article, fromFeed, "feed", false);
+  }
+
   // Muitos feeds trazem apenas a chamada da matéria (algumas centenas de
   // caracteres). Nesse caso o texto do feed não basta: buscamos a página
   // original para o leitor exibir a matéria inteira, e não só a prévia.

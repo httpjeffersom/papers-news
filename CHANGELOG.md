@@ -11,6 +11,7 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 - A lista de fontes não exibe mais o ícone de documento ao lado de cada fonte cadastrada.
 - O modo de leitura não exibe mais links no texto: eles aparecem como texto comum, sem abrir nada ao clicar.
 - O ícone do executável agora preenche todo o espaço do arquivo de ícone, deixando o mascote maior e mais nítido no Windows.
+- No modo de leitura, os títulos ganham mais espaço acima e ficam mais próximos do texto seguinte, e os parágrafos passam a ter uma linha em branco de separação.
 
 ### Adicionado
 
@@ -20,6 +21,7 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 
 - Ao abrir uma notícia, o leitor passa a buscar a página original quando o feed traz apenas a prévia, exibindo a matéria completa em vez das primeiras linhas.
 - Textos que vinham separados apenas por quebras de linha agora aparecem divididos em parágrafos no leitor.
+- As publicações de demonstração não exibem mais o aviso de texto incompleto ao abrir no leitor.
 
 ## [0.6.4] - 2026-11-08
 
