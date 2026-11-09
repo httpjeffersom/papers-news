@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Icon from "./Icon.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
 export default function SourcesView({
   sources,
@@ -11,6 +12,7 @@ export default function SourcesView({
   isAddingSource,
   addError,
 }) {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [validationError, setValidationError] = useState("");
@@ -69,12 +71,11 @@ export default function SourcesView({
     onRemoveSource(id);
   }
 
-  const sourceCountLabel =
-    totalSources === 0
-      ? "0 fontes"
-      : isFiltered
-        ? `${sources.length} de ${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`
-        : `${totalSources} ${totalSources === 1 ? "fonte" : "fontes"}`;
+  const sourceCountLabel = t("sources.count", {
+    shown: sources.length,
+    total: totalSources,
+    filtered: isFiltered,
+  });
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -86,12 +87,12 @@ export default function SourcesView({
         /^[a-z][a-z\d+.-]*:/i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`,
       );
     } catch {
-      setValidationError("Informe um endereço de site válido.");
+      setValidationError(t("sources.invalidUrl"));
       return;
     }
 
     if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-      setValidationError("Informe um endereço de site HTTP ou HTTPS.");
+      setValidationError(t("sources.invalidProtocol"));
       return;
     }
 
@@ -108,37 +109,33 @@ export default function SourcesView({
     <section className="sources-section">
       <div className="feed-heading">
         <div>
-          <p className="eyebrow">PERSONALIZE SEU FEED</p>
+          <p className="eyebrow">{t("sources.eyebrow")}</p>
           <div className="feed-heading-main">
-            <h1>Fontes</h1>
-            <p className="feed-note">os sites que você acompanha</p>
+            <h1>{t("sources.title")}</h1>
+            <p className="feed-note">{t("sources.note")}</p>
           </div>
         </div>
         <span className="article-count">{sourceCountLabel}</span>
       </div>
 
-      <div className="sources-notice">
-        Cole o endereço do site (por exemplo, https://exemplo.com/) e o Papers News encontra o feed
-        automaticamente. Se preferir, informe o endereço direto do RSS/Atom. O proxy local é iniciado
-        junto com o app, então não depende de serviços públicos.
-      </div>
+      <div className="sources-notice">{t("sources.notice")}</div>
 
       <form className="source-form" onSubmit={handleSubmit}>
         <div className="source-form-fields">
           <label>
-            <span>Nome da fonte (opcional)</span>
+            <span>{t("sources.nameLabel")}</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Usar o nome do site"
+              placeholder={t("sources.namePlaceholder")}
             />
           </label>
           <label>
-            <span>Endereço do site</span>
+            <span>{t("sources.urlLabel")}</span>
             <input
               value={url}
               onChange={(event) => setUrl(event.target.value)}
-              placeholder="exemplo.com ou https://exemplo.com/feed/"
+              placeholder={t("sources.urlPlaceholder")}
               type="text"
               inputMode="url"
               required
@@ -147,28 +144,28 @@ export default function SourcesView({
         </div>
         <button className="add-source-button" type="submit" disabled={isAddingSource}>
           <Icon name={isAddingSource ? "refresh" : "plus"} />
-          {isAddingSource ? "Procurando feed..." : "Buscar e adicionar"}
+          {isAddingSource ? t("sources.searching") : t("sources.add")}
         </button>
-        {isAddingSource && <p className="source-progress" role="status">Verificando o site e buscando publicações…</p>}
+        {isAddingSource && <p className="source-progress" role="status">{t("sources.verifying")}</p>}
         {validationError && <p className="inline-error" role="alert">{validationError}</p>}
         {addError && <p className="inline-error" role="alert">{addError}</p>}
       </form>
 
       <div className="source-list-heading">
-        <h2>Fontes cadastradas</h2>
-        <span>Sites e feeds encontrados</span>
+        <h2>{t("sources.listTitle")}</h2>
+        <span>{t("sources.listNote")}</span>
       </div>
       {totalSources === 0 ? (
         <div className="empty-state source-empty">
           <span className="empty-icon"><Icon name="source" /></span>
-          <h2>Nenhuma fonte cadastrada</h2>
-          <p>Adicione um site para buscar suas publicações.</p>
+          <h2>{t("sources.emptyTitle")}</h2>
+          <p>{t("sources.emptyText")}</p>
         </div>
       ) : sources.length === 0 ? (
         <div className="empty-state source-empty">
           <span className="empty-icon"><Icon name="search" /></span>
-          <h2>Nenhuma fonte encontrada</h2>
-          <p>Tente outro termo de busca.</p>
+          <h2>{t("sources.emptyFilteredTitle")}</h2>
+          <p>{t("sources.emptyFilteredText")}</p>
         </div>
       ) : (
         <ul className="source-list">
@@ -177,19 +174,20 @@ export default function SourcesView({
               <span className="source-row-details">
                 <span className="source-row-name">
                   {source.name}
-                  {source.isDemo && <span className="demo-tag">DEMO</span>}
+                  {source.isDemo && <span className="demo-tag">{t("item.demoTag")}</span>}
                 </span>
                 <span className="source-row-url">
                   {source.url}
-                  {source.feedUrl && source.feedUrl !== source.url && ` · Feed: ${source.feedUrl}`}
+                  {source.feedUrl && source.feedUrl !== source.url &&
+                    ` · ${t("sources.feedLabel", { url: source.feedUrl })}`}
                 </span>
               </span>
               <button
                 className="icon-action remove-source"
                 type="button"
                 onClick={() => setPendingRemoval(source)}
-                aria-label={`Remover ${source.name}`}
-                title="Remover fonte"
+                aria-label={t("sources.removeAria", { name: source.name })}
+                title={t("sources.removeTitle")}
               >
                 <Icon name="trash" />
               </button>
@@ -217,10 +215,10 @@ export default function SourcesView({
               <span className="confirm-dialog-icon" aria-hidden="true">
                 <Icon name="trash" />
               </span>
-              <h2 id="confirm-remove-title">Remover fonte?</h2>
+              <h2 id="confirm-remove-title">{t("sources.removeDialogTitle")}</h2>
               <p id="confirm-remove-description">
-                Você quer realmente remover <strong>{pendingRemoval.name}</strong> da sua lista
-                de fontes?
+                {t("sources.removeDialogBefore")} <strong>{pendingRemoval.name}</strong>{" "}
+                {t("sources.removeDialogAfter")}
               </p>
               <div className="confirm-actions">
                 <button
@@ -229,10 +227,10 @@ export default function SourcesView({
                   onClick={() => setPendingRemoval(null)}
                   ref={cancelRef}
                 >
-                  Cancelar
+                  {t("sources.cancel")}
                 </button>
                 <button className="confirm-remove" type="button" onClick={handleConfirmRemoval}>
-                  Remover
+                  {t("sources.remove")}
                 </button>
               </div>
             </div>

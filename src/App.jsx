@@ -5,7 +5,8 @@ import Navigation from "./components/Navigation.jsx";
 import NewsFeed from "./components/NewsFeed.jsx";
 import SettingsView from "./components/SettingsView.jsx";
 import SourcesView from "./components/SourcesView.jsx";
-import { demoArticles, demoSources } from "./data/demoArticles.js";
+import { getDemoArticles, getDemoSources } from "./data/demoArticles.js";
+import { useI18n } from "./i18n/LanguageContext.jsx";
 import { useFontSize } from "./hooks/useFontSize.js";
 import { useRetentionDays } from "./hooks/useRetentionDays.js";
 import { useTheme } from "./hooks/useTheme.js";
@@ -26,7 +27,7 @@ function isStorageQuotaError(error) {
   );
 }
 
-function formatRefreshFailures(errors) {
+function formatRefreshFailures(errors, t) {
   const shownFailures = errors
     .slice(0, maxRefreshFailuresShown)
     .map((failure) => `${failure.sourceName}: ${failure.message}`)
@@ -34,10 +35,11 @@ function formatRefreshFailures(errors) {
   const remaining = errors.length - maxRefreshFailuresShown;
 
   if (remaining <= 0) return shownFailures;
-  return `${shownFailures}; e mais ${remaining} ${remaining === 1 ? "fonte" : "fontes"}`;
+  return `${shownFailures}; ${t("app.moreSources", { count: remaining })}`;
 }
 
 export default function App() {
+  const { language, t } = useI18n();
   const [initialState] = useState(loadAppState);
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize } = useFontSize();
@@ -46,10 +48,12 @@ export default function App() {
   const [readingArticle, setReadingArticle] = useState(null);
   const [search, setSearch] = useState("");
   const [savedIds, setSavedIds] = useState(() => initialState?.savedIds ?? []);
-  const [sources, setSources] = useState(() => initialState?.sources ?? demoSources);
+  const [sources, setSources] = useState(
+    () => initialState?.sources ?? getDemoSources(language),
+  );
   const [articles, setArticles] = useState(() =>
     pruneExpiredArticles(
-      initialState?.articles ?? demoArticles,
+      initialState?.articles ?? getDemoArticles(language),
       initialState?.savedIds ?? [],
       Date.now(),
       retentionDays,
@@ -65,6 +69,27 @@ export default function App() {
     void ensureDesktopProxy();
   }, []);
 
+  // As publicações e fontes de demonstração acompanham o idioma escolhido.
+  useEffect(() => {
+    setSources((current) => {
+      if (!current.some((source) => source.isDemo)) return current;
+      return [
+        ...getDemoSources(language),
+        ...current.filter((source) => !source.isDemo),
+      ];
+    });
+
+    setArticles((current) => {
+      if (!current.some((article) => article.isDemo)) return current;
+      const localized = new Map(
+        getDemoArticles(language).map((article) => [article.id, article]),
+      );
+      return current.map((article) =>
+        article.isDemo ? localized.get(article.id) ?? article : article,
+      );
+    });
+  }, [language]);
+
   useEffect(() => {
     try {
       saveAppState({ sources, articles, savedIds });
@@ -72,37 +97,35 @@ export default function App() {
     } catch (error) {
       console.error("Não foi possível salvar os dados do Papers News:", error);
       setPersistenceError(
-        isStorageQuotaError(error)
-          ? "O armazenamento local está cheio. Remova fontes ou favoritos para liberar espaço."
-          : "Não foi possível salvar suas alterações neste dispositivo.",
+        isStorageQuotaError(error) ? t("app.storageFull") : t("app.saveError"),
       );
     }
   }, [articles, savedIds, sources]);
 
   const visibleArticles = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+    const normalizedSearch = search.trim().toLocaleLowerCase(language);
     return sortArticlesByDateDesc(
       articles
         .filter((article) => activeView !== "favorites" || savedIds.includes(article.id))
         .filter((article) => {
           if (!normalizedSearch) return true;
           const searchableText = `${article.title} ${article.summary} ${article.sourceName}`;
-          return searchableText.toLocaleLowerCase("pt-BR").includes(normalizedSearch);
+          return searchableText.toLocaleLowerCase(language).includes(normalizedSearch);
         }),
     );
-  }, [activeView, articles, savedIds, search]);
+  }, [activeView, articles, language, savedIds, search]);
 
   const visibleSources = useMemo(() => {
     if (activeView !== "sources") return sources;
 
-    const normalizedSearch = search.trim().toLocaleLowerCase("pt-BR");
+    const normalizedSearch = search.trim().toLocaleLowerCase(language);
     if (!normalizedSearch) return sources;
 
     return sources.filter((source) => {
       const searchableText = `${source.name} ${source.url} ${source.feedUrl ?? ""}`;
-      return searchableText.toLocaleLowerCase("pt-BR").includes(normalizedSearch);
+      return searchableText.toLocaleLowerCase(language).includes(normalizedSearch);
     });
-  }, [activeView, search, sources]);
+  }, [activeView, language, search, sources]);
 
   async function handleRefresh() {
     setIsRefreshing(true);
@@ -114,12 +137,14 @@ export default function App() {
       );
       if (result.errors.length > 0) {
         setRefreshError(
-          `Atualização parcial. Não foi possível atualizar: ${formatRefreshFailures(result.errors)}. Notícias antigas permanecem disponíveis quando há cache.`,
+          t("app.refreshPartial", {
+            detail: formatRefreshFailures(result.errors, t),
+          }),
         );
       }
     } catch (error) {
       console.error("Não foi possível atualizar as notícias:", error);
-      setRefreshError("Não foi possível atualizar o feed. Tente novamente.");
+      setRefreshError(t("app.refreshError"));
     } finally {
       setIsRefreshing(false);
     }
@@ -151,7 +176,7 @@ export default function App() {
     setSourceError("");
     try {
       if (sources.some((existing) => !existing.isDemo && existing.url === source.url)) {
-        throw new Error("Este site já está cadastrado.");
+        throw new Error(t("app.alreadyAdded"));
       }
       const result = await discoverAndFetchSource(source);
       setSources((current) => [
@@ -169,7 +194,7 @@ export default function App() {
       return true;
     } catch (error) {
       console.error("Não foi possível adicionar a fonte:", error);
-      setSourceError(error.message || "Não foi possível adicionar este site.");
+      setSourceError(error.message || t("app.addSourceError"));
       return false;
     } finally {
       setIsAddingSource(false);

@@ -1,4 +1,5 @@
 import Icon from "./Icon.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
 export default function Header({
   search,
@@ -9,7 +10,10 @@ export default function Header({
   isSourcesView,
   isSettingsView,
 }) {
-  const searchPlaceholder = isSourcesView ? "Buscar fonte" : "Buscar no seu feed";
+  const { t } = useI18n();
+  const searchPlaceholder = isSourcesView
+    ? t("search.sources")
+    : t("search.feed");
 
   return (
     <header className={`topbar${isSettingsView ? " topbar-settings" : ""}`}>
@@ -17,7 +21,7 @@ export default function Header({
         className="brand"
         type="button"
         onClick={onHome}
-        aria-label="Papers News, ir para todas as notícias"
+        aria-label={t("app.brandAria")}
       >
         <img
           className="brand-icon"
@@ -48,10 +52,14 @@ export default function Header({
           type="button"
           onClick={onRefresh}
           disabled={isRefreshing}
-          aria-label={isRefreshing ? "Atualizando feed" : "Atualizar feed"}
+          aria-label={
+            isRefreshing ? t("refresh.updatingAria") : t("refresh.updateAria")
+          }
         >
           <Icon name="refresh" />
-          <span>{isRefreshing ? "Atualizando" : "Atualizar"}</span>
+          <span>
+            {isRefreshing ? t("refresh.updating") : t("refresh.update")}
+          </span>
         </button>
       </div>
     </header>

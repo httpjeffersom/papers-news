@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralino.js/main/bin/resources/neutralino.config.schema.json",
   "applicationId": "com.papersnews.app",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "applicationName": "Papers News",
   "author": "Jeffersom",
-  "description": "Leitor pessoal de notícias RSS/Atom para desktop.",
+  "description": "Leitor pessoal de notÃ­cias RSS/Atom para desktop.",
   "defaultMode": "window",
   "port": 51789,
   "documentRoot": "/resources/",

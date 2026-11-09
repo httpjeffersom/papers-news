@@ -8,6 +8,7 @@ import {
 } from "./feedParser.js";
 import { sortArticlesByDateDesc } from "../utils/articleSort.js";
 import { ensureDesktopProxy } from "./desktopProxy.js";
+import { t } from "./i18n.js";
 
 const localProxyBaseUrl = (
   import.meta.env?.VITE_FEED_PROXY_URL || "http://127.0.0.1:8787"
@@ -117,7 +118,7 @@ async function fetchTextViaAllOrigins(url, timeout = requestTimeoutMs) {
   const text = await response.text();
 
   if (!response.ok) {
-    throw new Error(`AllOrigins respondeu HTTP ${response.status}`);
+    throw new Error(t("error.allOrigins", { status: response.status }));
   }
 
   return { text, finalUrl: url };
@@ -130,19 +131,19 @@ async function fetchFeedViaRss2Json(feedUrl, source) {
   });
 
   if (!response.ok) {
-    throw new Error(`RSS2JSON respondeu HTTP ${response.status}`);
+    throw new Error(t("error.rss2json", { status: response.status }));
   }
 
   const data = await response.json();
   if (data.status !== "ok") {
-    throw new Error(data.message || "RSS2JSON não conseguiu ler este feed.");
+    throw new Error(data.message || t("error.rss2jsonRead"));
   }
 
   const sourceName =
     source.name ||
     plainText(data.feed?.title || "") ||
     hostnameOf(source.url) ||
-    "Fonte desconhecida";
+    t("error.unknownSource");
   const seenLinks = new Set();
   const articles = [];
 
@@ -199,11 +200,9 @@ function hostnameOf(url) {
 
 function formatFeedError(feedUrl, error, proxyAvailable) {
   const detail = error instanceof Error ? error.message : String(error);
-  const proxyHint = proxyAvailable
-    ? ""
-    : " O proxy local não está ativo; rode \"npm run dev\" (ou \"npm run proxy\") e tente de novo.";
+  const proxyHint = proxyAvailable ? "" : t("error.proxyHint");
 
-  return `Não foi possível carregar ${feedUrl}.${proxyHint} Detalhes: ${detail}`;
+  return t("error.feedLoad", { url: feedUrl, proxyHint, detail });
 }
 
 async function fetchFeedOnce(feedUrl, source, timeout) {
@@ -249,7 +248,9 @@ async function fetchFeed(
       } catch (publicError) {
         throw new Error(
           formatFeedError(feedUrl, firstError, true) +
-            ` Alternativas públicas também falharam (${jsonError.message}; ${publicError.message}).`,
+            t("error.alternativesFailed", {
+              detail: `${jsonError.message}; ${publicError.message}`,
+            }),
         );
       }
     }
@@ -529,12 +530,19 @@ export async function discoverAndFetchSource({ name, url }) {
   if (lastError) {
     const detail = lastError instanceof Error ? lastError.message : String(lastError);
     throw new Error(
-      `Não encontrei um feed RSS/Atom em ${pageUrl}. Se o site publica um feed, informe o endereço direto dele (por exemplo, ${new URL("/feed/", pageUrl).href}). Detalhes: ${detail}`,
+      t("error.feedNotFound", {
+        url: pageUrl,
+        example: new URL("/feed/", pageUrl).href,
+        detail,
+      }),
     );
   }
 
   throw new Error(
-    `Não encontrei um feed RSS/Atom em ${pageUrl}. Verifique se o site publica um feed ou informe o endereço direto dele (por exemplo, ${new URL("/feed/", pageUrl).href}).`,
+    t("error.feedNotFoundHint", {
+      url: pageUrl,
+      example: new URL("/feed/", pageUrl).href,
+    }),
   );
 }
 
@@ -552,7 +560,7 @@ async function fetchTextViaBestTransport(url, timeout) {
     return await fetchTextViaAllOrigins(url, timeout);
   } catch (error) {
     throw new Error(
-      `Não foi possível abrir ${url}. O proxy local não está ativo; rode "npm run dev" (ou "npm run proxy") e tente novamente. Detalhes: ${error.message}`,
+      t("error.openPage", { url, detail: error.message }),
     );
   }
 }
@@ -613,5 +621,5 @@ export async function refreshNews(sources = [], cachedArticles = [], savedIds = 
 
 function sourceLabel(source) {
   if (source.name) return source.name;
-  return hostnameOf(source.url) || "Fonte desconhecida";
+  return hostnameOf(source.url) || t("error.unknownSource");
 }

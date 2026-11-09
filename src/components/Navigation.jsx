@@ -1,18 +1,21 @@
 import Icon from "./Icon.jsx";
 import packageJson from "../../package.json";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
 const items = [
-  { id: "all", label: "Todas as notícias", icon: "feed" },
-  { id: "favorites", label: "Favoritos", icon: "bookmark" },
-  { id: "sources", label: "Fontes", icon: "source" },
+  { id: "all", labelKey: "nav.all", icon: "feed" },
+  { id: "favorites", labelKey: "nav.favorites", icon: "bookmark" },
+  { id: "sources", labelKey: "nav.sources", icon: "source" },
 ];
 
-const settingsItem = { id: "settings", label: "Configurações", icon: "settings" };
+const settingsItem = { id: "settings", labelKey: "nav.settings", icon: "settings" };
 
 export default function Navigation({ activeView, onChange }) {
+  const { t } = useI18n();
+
   return (
-    <aside className="sidebar" aria-label="Navegação principal">
-      <p className="sidebar-label">SEU ESPAÇO</p>
+    <aside className="sidebar" aria-label={t("nav.aria")}>
+      <p className="sidebar-label">{t("nav.space")}</p>
       <nav className="nav-list">
         {items.map((item) => (
           <button
@@ -23,7 +26,7 @@ export default function Navigation({ activeView, onChange }) {
             aria-current={activeView === item.id ? "page" : undefined}
           >
             <Icon name={item.icon} />
-            <span>{item.label}</span>
+            <span>{t(item.labelKey)}</span>
           </button>
         ))}
       </nav>
@@ -36,9 +39,11 @@ export default function Navigation({ activeView, onChange }) {
           aria-current={activeView === settingsItem.id ? "page" : undefined}
         >
           <Icon name={settingsItem.icon} />
-          <span>{settingsItem.label}</span>
+          <span>{t(settingsItem.labelKey)}</span>
         </button>
-        <p className="sidebar-note">versão {packageJson.version}</p>
+        <p className="sidebar-note">
+          {t("nav.version", { version: packageJson.version })}
+        </p>
       </div>
     </aside>
   );

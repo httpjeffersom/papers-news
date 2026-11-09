@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.7.0] - 2026-11-08
+
+### Adicionado
+
+- Seletor de idioma em Configurações com **Português** e **English**. A escolha fica salva e vale para toda a interface, inclusive datas e plurais.
+- Interface traduzida para o inglês: navegação, feed, fontes, leitor, configurações e avisos de erro.
+- O conteúdo de demonstração também acompanha o idioma escolhido.
+
 ## [0.6.5] - 2026-11-08
 
 ### Alterado

@@ -1,11 +1,14 @@
 import Icon from "./Icon.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
 const options = [
-  { value: "light", label: "Claro", icon: "sun" },
-  { value: "dark", label: "Escuro", icon: "moon" },
+  { value: "light", labelKey: "settings.themeLight", ariaKey: "settings.themeLightAria", icon: "sun" },
+  { value: "dark", labelKey: "settings.themeDark", ariaKey: "settings.themeDarkAria", icon: "moon" },
 ];
 
 export default function ThemeSwitcher({ theme, onChange }) {
+  const { t } = useI18n();
+
   function handleKeyDown(event) {
     const currentIndex = options.findIndex((option) => option.value === theme);
     let nextIndex = null;
@@ -30,7 +33,7 @@ export default function ThemeSwitcher({ theme, onChange }) {
     <div
       className="theme-picker"
       role="radiogroup"
-      aria-label="Tema da interface"
+      aria-label={t("settings.themeAria")}
       onKeyDown={handleKeyDown}
     >
       {options.map((option) => {
@@ -42,7 +45,7 @@ export default function ThemeSwitcher({ theme, onChange }) {
             type="button"
             role="radio"
             aria-checked={isChecked}
-            aria-label={`Tema ${option.label.toLocaleLowerCase("pt-BR")}`}
+            aria-label={t(option.ariaKey)}
             data-theme-choice={option.value}
             tabIndex={isChecked ? 0 : -1}
             onClick={() => onChange(option.value)}
@@ -61,7 +64,7 @@ export default function ThemeSwitcher({ theme, onChange }) {
 
             <span className="theme-choice-label">
               <Icon name={option.icon} />
-              <span>{option.label}</span>
+              <span>{t(option.labelKey)}</span>
               <span className="theme-choice-check">
                 <Icon name="check" />
               </span>

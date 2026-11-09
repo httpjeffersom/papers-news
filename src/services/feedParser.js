@@ -1,3 +1,5 @@
+import { t } from "./i18n.js";
+
 export const maxArticlesPerFeed = 30;
 export const maxStoredContentLength = 30000;
 
@@ -309,7 +311,7 @@ function prepareDocument(xmlText) {
 
   if (root) return { document, root };
 
-  throw new Error("O endereço não retornou um feed RSS/Atom.");
+  throw new Error(t("error.notAFeed"));
 }
 
 export function parseFeedXml(xmlText, source, feedUrl) {
@@ -328,18 +330,18 @@ export function parseFeedXml(xmlText, source, feedUrl) {
     channel = firstByNames(root, ["channel"]) || root;
     items = [...root.getElementsByTagName("item")];
   } else {
-    throw new Error("O endereço não retornou um feed RSS/Atom.");
+    throw new Error(t("error.notAFeed"));
   }
 
   if (!channel) {
-    throw new Error("O endereço não retornou um feed RSS/Atom.");
+    throw new Error(t("error.notAFeed"));
   }
 
   const sourceName =
     source.name ||
     plainText(childText(channel, ["title"])) ||
     hostnameOf(source.url) ||
-    "Fonte desconhecida";
+    t("error.unknownSource");
   const seenLinks = new Set();
   const articles = [];
 

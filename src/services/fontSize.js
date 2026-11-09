@@ -1,14 +1,16 @@
 // Tamanho do texto: cinco níveis discretos, aplicados como escala no
 // elemento raiz. Como os tamanhos da interface usam rem, tudo (títulos,
 // corpo e o modo de leitura) acompanha a escolha.
+import { t } from "./i18n.js";
+
 export const fontSizeStorageKey = "papers-news:font-size:v1";
 
 export const fontSizeLevels = [
-  { id: "small", label: "Pequeno", scale: 0.9 },
-  { id: "default", label: "Padrão", scale: 1 },
-  { id: "medium", label: "Médio", scale: 1.1 },
-  { id: "large", label: "Grande", scale: 1.2 },
-  { id: "larger", label: "Maior", scale: 1.3 },
+  { id: "small", scale: 0.9 },
+  { id: "default", scale: 1 },
+  { id: "medium", scale: 1.1 },
+  { id: "large", scale: 1.2 },
+  { id: "larger", scale: 1.3 },
 ];
 
 export const defaultFontSizeIndex = 1;
@@ -35,7 +37,7 @@ export function fontSizeScale(index) {
 }
 
 export function fontSizeLabel(index) {
-  return fontSizeLevels[normalizeFontSizeIndex(index)].label;
+  return t(`font.${fontSizeLevels[normalizeFontSizeIndex(index)].id}`);
 }
 
 export function loadFontSize() {

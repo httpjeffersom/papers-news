@@ -1,17 +1,18 @@
 import { useState } from "react";
 import Icon from "./Icon.jsx";
 import { openExternalUrl } from "../services/desktop.js";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
-function formatPublishedAt(value) {
+function formatPublishedAt(value, language) {
   const publishedAt = new Date(value);
   if (Number.isNaN(publishedAt.getTime())) return "";
 
-  const date = new Intl.DateTimeFormat("pt-BR", {
+  const date = new Intl.DateTimeFormat(language, {
     day: "2-digit",
     month: "short",
     year: "numeric",
   }).format(publishedAt);
-  const time = new Intl.DateTimeFormat("pt-BR", {
+  const time = new Intl.DateTimeFormat(language, {
     hour: "2-digit",
     minute: "2-digit",
   }).format(publishedAt);
@@ -19,9 +20,10 @@ function formatPublishedAt(value) {
 }
 
 export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
+  const { t, language } = useI18n();
   const [openError, setOpenError] = useState("");
   const [imageFailed, setImageFailed] = useState(false);
-  const publishedAtLabel = formatPublishedAt(article.publishedAt);
+  const publishedAtLabel = formatPublishedAt(article.publishedAt, language);
 
   async function handleOpen() {
     setOpenError("");
@@ -29,7 +31,7 @@ export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
       await openExternalUrl(article.url);
     } catch (error) {
       console.error("Não foi possível abrir a publicação:", error);
-      setOpenError("Não foi possível abrir o link.");
+      setOpenError(t("item.openError"));
     }
   }
 
@@ -41,9 +43,9 @@ export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
         {publishedAtLabel ? (
           <time dateTime={article.publishedAt}>{publishedAtLabel}</time>
         ) : (
-          <span className="meta-unknown">Data desconhecida</span>
+          <span className="meta-unknown">{t("item.unknownDate")}</span>
         )}
-        {article.isDemo && <span className="demo-tag">DEMO</span>}
+        {article.isDemo && <span className="demo-tag">{t("item.demoTag")}</span>}
       </div>
 
       <h2 className="article-title">{article.title}</h2>
@@ -67,19 +69,19 @@ export default function NewsItem({ article, isSaved, onToggleSaved, onRead }) {
             onClick={() => onRead(article)}
           >
             <Icon name="read" />
-            Ler aqui
+            {t("item.read")}
           </button>
           <button className="text-action" type="button" onClick={handleOpen}>
-            {article.isDemo ? "Abrir exemplo" : "Abrir publicação"} <Icon name="external" />
+            {article.isDemo ? t("item.openDemo") : t("item.open")} <Icon name="external" />
           </button>
         </div>
         <button
           className={`icon-action${isSaved ? " is-saved" : ""}`}
           type="button"
           onClick={() => onToggleSaved(article.id)}
-          aria-label={isSaved ? "Remover dos favoritos" : "Salvar nos favoritos"}
+          aria-label={isSaved ? t("item.unsave") : t("item.save")}
           aria-pressed={isSaved}
-          title={isSaved ? "Remover dos favoritos" : "Salvar nos favoritos"}
+          title={isSaved ? t("item.unsave") : t("item.save")}
         >
           <Icon name="bookmark" />
         </button>

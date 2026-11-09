@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 import { openExternalUrl } from "../services/desktop.js";
 import { loadArticleContent } from "../services/reader.js";
 
-function formatPublishedAt(value) {
+function formatPublishedAt(value, language) {
   const publishedAt = new Date(value);
   if (Number.isNaN(publishedAt.getTime())) return "";
 
-  return new Intl.DateTimeFormat("pt-BR", {
+  return new Intl.DateTimeFormat(language, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -24,6 +25,7 @@ function escapeSummary(value) {
 }
 
 export default function ArticleReader({ article, onClose }) {
+  const { t, language } = useI18n();
   const [state, setState] = useState({ status: "loading", content: null });
   const [progress, setProgress] = useState(0);
   const [openError, setOpenError] = useState("");
@@ -98,11 +100,11 @@ export default function ArticleReader({ article, onClose }) {
       await openExternalUrl(article.url);
     } catch (error) {
       console.error("Não foi possível abrir a publicação:", error);
-      setOpenError("Não foi possível abrir o link.");
+      setOpenError(t("item.openError"));
     }
   }
 
-  const publishedAtLabel = formatPublishedAt(article.publishedAt);
+  const publishedAtLabel = formatPublishedAt(article.publishedAt, language);
   const isLoading = state.status === "loading";
   const content = state.content;
 
@@ -121,7 +123,7 @@ export default function ArticleReader({ article, onClose }) {
           ref={closeRef}
         >
           <Icon name="back" />
-          <span>Voltar</span>
+          <span>{t("reader.back")}</span>
         </button>
 
         <span className="reader-bar-source">{article.sourceName}</span>
@@ -131,7 +133,7 @@ export default function ArticleReader({ article, onClose }) {
           type="button"
           onClick={handleOpen}
         >
-          <span>{article.isDemo ? "Abrir exemplo" : "Abrir publicação"}</span>
+          <span>{article.isDemo ? t("item.openDemo") : t("item.open")}</span>
           <Icon name="external" />
         </button>
 
@@ -171,25 +173,19 @@ export default function ArticleReader({ article, onClose }) {
           {isLoading ? (
             <div className="reader-loading" role="status">
               <span className="spinner" />
-              Preparando a leitura…
+              {t("reader.loading")}
             </div>
           ) : (
             <>
               {content?.limited && (
-                <p className="reader-notice">
-                  O texto completo não pôde ser carregado agora. Mostrando o
-                  resumo da publicação.
-                </p>
+                <p className="reader-notice">{t("reader.limited")}</p>
               )}
               <div
                 className="reader-content"
                 dangerouslySetInnerHTML={{ __html: content?.html || "" }}
               />
               {!content?.html && (
-                <p className="reader-notice">
-                  Esta publicação não trouxe texto para leitura. Abra a
-                  publicação no site para continuar.
-                </p>
+                <p className="reader-notice">{t("reader.noText")}</p>
               )}
             </>
           )}
@@ -201,9 +197,9 @@ export default function ArticleReader({ article, onClose }) {
           )}
 
           <footer className="reader-footer">
-            <p>Você está lendo no Papers News.</p>
+            <p>{t("reader.footer")}</p>
             <button className="text-action" type="button" onClick={handleOpen}>
-              {article.isDemo ? "Abrir exemplo" : "Continuar no site"}
+              {article.isDemo ? t("item.openDemo") : t("reader.continue")}
               <Icon name="external" />
             </button>
           </footer>

@@ -1,5 +1,6 @@
 import Icon from "./Icon.jsx";
 import NewsItem from "./NewsItem.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 
 export default function NewsFeed({
   articles,
@@ -10,20 +11,24 @@ export default function NewsFeed({
   onToggleSaved,
   onReadArticle,
 }) {
+  const { t } = useI18n();
   const isFavorites = activeView === "favorites";
   const hasDemoArticles = articles.some((article) => article.isDemo);
 
   return (
-    <section className="feed-section" aria-label={isFavorites ? "Notícias favoritas" : "Feed de notícias"}>
+    <section
+      className="feed-section"
+      aria-label={isFavorites ? t("feed.favoritesAria") : t("feed.aria")}
+    >
       <div className="feed-heading">
         <div className="feed-heading-main">
-          <h1>{isFavorites ? "Favoritos" : "Seu feed"}</h1>
+          <h1>{isFavorites ? t("feed.favoritesTitle") : t("feed.title")}</h1>
           <p className="feed-note">
-            {isFavorites ? "guardados para ler depois" : "em ordem cronológica"}
+            {isFavorites ? t("feed.favoritesNote") : t("feed.note")}
           </p>
         </div>
         <span className="article-count">
-          {articles.length} {articles.length === 1 ? "publicação" : "publicações"}
+          {t("feed.count", { count: articles.length })}
         </span>
       </div>
 
@@ -31,8 +36,7 @@ export default function NewsFeed({
         <div className="demo-notice">
           <span className="demo-notice-icon"><Icon name="check" /></span>
           <p>
-            <strong>Conteúdo de demonstração.</strong> Estas publicações são fictícias. Adicione um site
-            em Fontes para acompanhar notícias reais.
+            <strong>{t("feed.demoTitle")}</strong> {t("feed.demoText")}
           </p>
         </div>
       )}
@@ -45,21 +49,21 @@ export default function NewsFeed({
       {isRefreshing && articles.length > 0 && (
         <div className="loading-banner" role="status">
           <span className="spinner" />
-          Atualizando publicações…
+          {t("feed.updating")}
         </div>
       )}
 
       <div className="article-list" aria-busy={isRefreshing}>
         {isRefreshing && articles.length === 0 ? (
-          <div className="loading-state"><span className="spinner" />Carregando publicações…</div>
+          <div className="loading-state"><span className="spinner" />{t("feed.loading")}</div>
         ) : articles.length === 0 ? (
           <div className="empty-state">
             <span className="empty-icon"><Icon name={isFavorites ? "bookmark" : "search"} /></span>
-            <h2>{isFavorites ? "Sua coleção começa aqui" : "Nenhuma publicação encontrada"}</h2>
+            <h2>
+              {isFavorites ? t("feed.emptyFavoritesTitle") : t("feed.emptyTitle")}
+            </h2>
             <p>
-              {isFavorites
-                ? "Salve uma publicação com o marcador para encontrá-la aqui."
-                : "Tente outro termo de busca ou volte mais tarde."}
+              {isFavorites ? t("feed.emptyFavoritesText") : t("feed.emptyText")}
             </p>
           </div>
         ) : (
@@ -74,7 +78,7 @@ export default function NewsFeed({
           ))
         )}
       </div>
-      <footer className="feed-footer">Você chegou ao fim das publicações disponíveis.</footer>
+      <footer className="feed-footer">{t("feed.footer")}</footer>
     </section>
   );
 }

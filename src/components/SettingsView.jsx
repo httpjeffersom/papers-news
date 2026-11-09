@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Icon from "./Icon.jsx";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
 import ThemeSwitcher from "./ThemeSwitcher.jsx";
+import { useI18n } from "../i18n/LanguageContext.jsx";
 import { openExternalUrl } from "../services/desktop.js";
-import { fontSizeLevels, fontSizeScale } from "../services/fontSize.js";
+import { fontSizeLabel, fontSizeLevels, fontSizeScale } from "../services/fontSize.js";
 import {
   articleRetentionPresets,
   clampArticleRetentionDays,
@@ -19,7 +21,8 @@ export default function SettingsView({
   retentionDays,
   onRetentionDaysChange,
 }) {
-  const selectedLevel = fontSizeLevels[fontSize];
+  const { t } = useI18n();
+  const selectedLevel = fontSizeLabel(fontSize);
   const [repositoryError, setRepositoryError] = useState("");
   const [isCustomRetention, setIsCustomRetention] = useState(
     () => !articleRetentionPresets.includes(retentionDays),
@@ -42,7 +45,7 @@ export default function SettingsView({
       await openExternalUrl(repositoryUrl);
     } catch (error) {
       console.error("Não foi possível abrir o repositório:", error);
-      setRepositoryError("Não foi possível abrir o navegador.");
+      setRepositoryError(t("settings.repositoryError"));
     }
   }
 
@@ -143,8 +146,28 @@ export default function SettingsView({
     <section className="settings-section">
       <div className="feed-heading">
         <div className="feed-heading-main">
-          <h1>Configurações</h1>
-          <p className="feed-note">deixe o seu espaço com a sua cara</p>
+          <h1>{t("settings.title")}</h1>
+          <p className="feed-note">{t("settings.note")}</p>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <div className="settings-card-heading">
+          <span className="settings-card-icon">
+            <Icon name="settings" />
+          </span>
+          <div>
+            <h2>{t("settings.language")}</h2>
+            <p>{t("settings.languageText")}</p>
+          </div>
+        </div>
+
+        <div className="settings-row">
+          <div className="settings-row-label">
+            <span className="settings-row-title">{t("settings.language")}</span>
+            <span className="settings-hint">{t("settings.languageHint")}</span>
+          </div>
+          <LanguageSwitcher />
         </div>
       </div>
 
@@ -154,17 +177,15 @@ export default function SettingsView({
             <Icon name="sun" />
           </span>
           <div>
-            <h2>Aparência</h2>
-            <p>Escolha como o Papers News deve ser exibido.</p>
+            <h2>{t("settings.appearance")}</h2>
+            <p>{t("settings.appearanceText")}</p>
           </div>
         </div>
 
         <div className="settings-row">
           <div className="settings-row-label">
-            <span className="settings-row-title">Tema</span>
-            <span className="settings-hint">
-              Claro para o dia, escuro para ambientes com pouca luz.
-            </span>
+            <span className="settings-row-title">{t("settings.theme")}</span>
+            <span className="settings-hint">{t("settings.themeHint")}</span>
           </div>
           <ThemeSwitcher theme={theme} onChange={onThemeChange} />
         </div>
@@ -176,16 +197,16 @@ export default function SettingsView({
             <Icon name="read" />
           </span>
           <div>
-            <h2>Leitura</h2>
-            <p>Ajuste o texto do feed e do modo de leitura.</p>
+            <h2>{t("settings.reading")}</h2>
+            <p>{t("settings.readingText")}</p>
           </div>
         </div>
 
         <div className="settings-row is-stacked">
           <div className="settings-row-label">
-            <span className="settings-row-title">Tamanho do texto</span>
+            <span className="settings-row-title">{t("settings.fontSize")}</span>
             <span className="settings-hint">
-              {selectedLevel.label} — o tamanho vale para toda a interface.
+              {t("settings.fontSizeHint", { level: selectedLevel })}
             </span>
           </div>
 
@@ -193,11 +214,12 @@ export default function SettingsView({
             <div
               className="font-size-options"
               role="radiogroup"
-              aria-label="Tamanho do texto"
+              aria-label={t("settings.fontSizeAria")}
               onKeyDown={handleOptionsKeyDown}
             >
               {fontSizeLevels.map((level, index) => {
                 const isChecked = fontSize === index;
+                const label = fontSizeLabel(index);
                 return (
                   <button
                     key={level.id}
@@ -205,7 +227,7 @@ export default function SettingsView({
                     type="button"
                     role="radio"
                     aria-checked={isChecked}
-                    aria-label={level.label}
+                    aria-label={label}
                     tabIndex={isChecked ? 0 : -1}
                     onClick={() => onFontSizeChange(index)}
                   >
@@ -216,7 +238,7 @@ export default function SettingsView({
                     >
                       A
                     </span>
-                    <span className="font-size-label">{level.label}</span>
+                    <span className="font-size-label">{label}</span>
                   </button>
                 );
               })}
@@ -230,8 +252,8 @@ export default function SettingsView({
               step={1}
               value={fontSize}
               onChange={handleSliderChange}
-              aria-label="Tamanho do texto"
-              aria-valuetext={selectedLevel.label}
+              aria-label={t("settings.fontSizeAria")}
+              aria-valuetext={selectedLevel}
               style={{
                 "--slider-progress": `${
                   (fontSize / (fontSizeLevels.length - 1)) * 100
@@ -239,22 +261,16 @@ export default function SettingsView({
               }}
             />
             <div className="font-size-scale" aria-hidden="true">
-              <span>Pequeno</span>
-              <span>Maior</span>
+              <span>{t("settings.fontScaleSmall")}</span>
+              <span>{t("settings.fontScaleLarge")}</span>
             </div>
           </div>
         </div>
 
         <div className="font-preview" aria-live="polite">
-          <p className="font-preview-kicker">PRÉ-VISUALIZAÇÃO</p>
-          <p className="font-preview-title">
-            Uma leitura confortável, do seu jeito
-          </p>
-          <p className="font-preview-text">
-            As notícias aparecem em ordem cronológica, com espaço para
-            respirar. Ajuste o tamanho até encontrar o que funciona melhor
-            para você.
-          </p>
+          <p className="font-preview-kicker">{t("settings.previewKicker")}</p>
+          <p className="font-preview-title">{t("settings.previewTitle")}</p>
+          <p className="font-preview-text">{t("settings.previewText")}</p>
           <span
             className="font-preview-meter"
             style={{ width: `${fontSizeScale(fontSize) * 100 - 80}%` }}
@@ -269,18 +285,16 @@ export default function SettingsView({
             <Icon name="trash" />
           </span>
           <div>
-            <h2>Armazenamento</h2>
-            <p>Defina por quanto tempo as notícias ficam guardadas neste computador.</p>
+            <h2>{t("settings.storage")}</h2>
+            <p>{t("settings.storageText")}</p>
           </div>
         </div>
 
         <div className="settings-row is-stacked">
           <div className="settings-row-label">
-            <span className="settings-row-title">Apagar notícias antigas</span>
+            <span className="settings-row-title">{t("settings.retention")}</span>
             <span className="settings-hint">
-              As notícias são apagadas depois de {retentionDays}{" "}
-              {retentionDays === 1 ? "dia" : "dias"}. Favoritos ficam guardados
-              para sempre.
+              {t("settings.retentionHint", { days: retentionDays })}
             </span>
           </div>
 
@@ -288,7 +302,7 @@ export default function SettingsView({
             <div
               className="retention-options"
               role="radiogroup"
-              aria-label="Apagar notícias antigas"
+              aria-label={t("settings.retentionAria")}
               onKeyDown={handleRetentionKeyDown}
             >
               {articleRetentionPresets.map((days) => {
@@ -307,7 +321,7 @@ export default function SettingsView({
                   >
                     <span className="retention-value">{days}</span>
                     <span className="retention-unit">
-                      {days === 1 ? "dia" : "dias"}
+                      {days === 1 ? t("settings.day") : t("settings.days")}
                     </span>
                   </button>
                 );
@@ -325,13 +339,13 @@ export default function SettingsView({
                 <span className="retention-value" aria-hidden="true">
                   ···
                 </span>
-                <span className="retention-unit">Personalizado</span>
+                <span className="retention-unit">{t("settings.custom")}</span>
               </button>
             </div>
 
             {isCustomRetention && (
               <label className="retention-custom" htmlFor="retention-days">
-                <span>Personalizado</span>
+                <span>{t("settings.custom")}</span>
                 <span className="retention-custom-field">
                   <input
                     id="retention-days"
@@ -345,7 +359,7 @@ export default function SettingsView({
                     onBlur={handleCustomRetentionBlur}
                     onKeyDown={handleCustomRetentionKeyDown}
                   />
-                  <span>dias</span>
+                  <span>{t("settings.days")}</span>
                 </span>
               </label>
             )}
@@ -353,18 +367,12 @@ export default function SettingsView({
         </div>
       </div>
 
-      <p className="settings-footnote">
-        Suas preferências ficam salvas apenas neste computador.
-      </p>
+      <p className="settings-footnote">{t("settings.footnote")}</p>
 
       <div className="settings-privacy">
         <div className="settings-privacy-text">
-          <p className="settings-privacy-title">Sem coleta de dados</p>
-          <p>
-            Não coletamos nada: fontes, notícias e favoritos ficam salvos
-            localmente, no seu computador. O código é aberto e você pode
-            conferi-lo no repositório do projeto.
-          </p>
+          <p className="settings-privacy-title">{t("settings.privacyTitle")}</p>
+          <p>{t("settings.privacyText")}</p>
         </div>
 
         <button
@@ -373,7 +381,7 @@ export default function SettingsView({
           onClick={handleOpenRepository}
         >
           <Icon name="external" />
-          Abrir repositório no GitHub
+          {t("settings.repository")}
         </button>
 
         {repositoryError && (
