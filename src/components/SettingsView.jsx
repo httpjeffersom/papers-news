@@ -154,26 +154,6 @@ export default function SettingsView({
       <div className="settings-card">
         <div className="settings-card-heading">
           <span className="settings-card-icon">
-            <Icon name="settings" />
-          </span>
-          <div>
-            <h2>{t("settings.language")}</h2>
-            <p>{t("settings.languageText")}</p>
-          </div>
-        </div>
-
-        <div className="settings-row">
-          <div className="settings-row-label">
-            <span className="settings-row-title">{t("settings.language")}</span>
-            <span className="settings-hint">{t("settings.languageHint")}</span>
-          </div>
-          <LanguageSwitcher />
-        </div>
-      </div>
-
-      <div className="settings-card">
-        <div className="settings-card-heading">
-          <span className="settings-card-icon">
             <Icon name="sun" />
           </span>
           <div>
@@ -364,6 +344,26 @@ export default function SettingsView({
               </label>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="settings-card">
+        <div className="settings-card-heading">
+          <span className="settings-card-icon">
+            <Icon name="settings" />
+          </span>
+          <div>
+            <h2>{t("settings.language")}</h2>
+            <p>{t("settings.languageText")}</p>
+          </div>
+        </div>
+
+        <div className="settings-row">
+          <div className="settings-row-label">
+            <span className="settings-row-title">{t("settings.language")}</span>
+            <span className="settings-hint">{t("settings.languageHint")}</span>
+          </div>
+          <LanguageSwitcher />
         </div>
       </div>
 
