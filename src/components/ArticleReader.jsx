@@ -104,6 +104,22 @@ export default function ArticleReader({ article, onClose }) {
     }
   }
 
+  // Os links do texto abrem no navegador: navegar dentro da janela do app
+  // trocaria a interface pelo site.
+  async function handleContentClick(event) {
+    const link = event.target?.closest?.("a[href]");
+    if (!link) return;
+
+    event.preventDefault();
+    setOpenError("");
+    try {
+      await openExternalUrl(link.getAttribute("href"));
+    } catch (error) {
+      console.error("Não foi possível abrir o link:", error);
+      setOpenError(t("item.openError"));
+    }
+  }
+
   const publishedAtLabel = formatPublishedAt(article.publishedAt, language);
   const isLoading = state.status === "loading";
   const content = state.content;
@@ -182,6 +198,7 @@ export default function ArticleReader({ article, onClose }) {
               )}
               <div
                 className="reader-content"
+                onClick={handleContentClick}
                 dangerouslySetInnerHTML={{ __html: content?.html || "" }}
               />
               {!content?.html && (

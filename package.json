@@ -1,8 +1,8 @@
 {
   "name": "papers-news",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
-  "description": "Leitor pessoal de notÃ­cias RSS/Atom, local-first, sem telemetria e de cÃ³digo aberto.",
+  "description": "Leitor pessoal de notícias RSS/Atom, local-first, sem telemetria e de código aberto.",
   "license": "MIT",
   "author": "Jeffersom",
   "repository": {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ArticleReader from "./components/ArticleReader.jsx";
 import Header from "./components/Header.jsx";
 import Navigation from "./components/Navigation.jsx";
@@ -65,8 +65,27 @@ export default function App() {
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [sourceError, setSourceError] = useState("");
 
+  // Ao abrir, atualiza os feeds sozinho. Só vale a pena quando existe ao menos
+  // uma fonte de verdade — o conteúdo de demonstração não depende de rede.
+  const autoRefreshStarted = useRef(false);
   useEffect(() => {
-    void ensureDesktopProxy();
+    let cancelled = false;
+
+    (async () => {
+      // Espera o proxy local acordar para não cair nos serviços públicos.
+      await ensureDesktopProxy();
+      if (cancelled || autoRefreshStarted.current) return;
+      if (!sources.some((source) => !source.isDemo)) return;
+
+      autoRefreshStarted.current = true;
+      await handleRefresh();
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // Executa uma única vez, com o estado já carregado do disco.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // As publicações e fontes de demonstração acompanham o idioma escolhido.

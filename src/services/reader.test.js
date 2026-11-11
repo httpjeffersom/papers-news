@@ -38,9 +38,34 @@ test("sanitizes feed HTML and resolves relative links and images", () => {
 
   assert.match(html, /<p>Texto <strong>forte<\/strong><\/p>/);
   assert.match(html, /<img src="https:\/\/blog\.example\/imagem\.jpg" alt="Foto"/);
-  assert.match(html, /Ler mais/);
+  assert.match(
+    html,
+    /<a href="https:\/\/blog\.example\/noticia" rel="noopener noreferrer">Ler mais<\/a>/,
+  );
+  // O texto de um link perigoso permanece, mas sem o endereço.
   assert.match(html, /Perigoso/);
-  assert.doesNotMatch(html, /<a\b|href=|script|iframe|onclick|onerror|javascript:/i);
+  assert.doesNotMatch(html, /javascript:|onmouseover|onerror|onclick|script|iframe/i);
+});
+
+test("keeps article links and drops empty or unsafe anchors", () => {
+  const html = sanitizeArticleHtml(
+    [
+      '<p>Veja <a href="https://exemplo.com/materia">a matéria completa</a>.</p>',
+      '<a href="https://exemplo.com/"><img src="/capa.jpg" alt="Capa" /></a>',
+      '<a href="/vazio"></a>',
+    ].join(""),
+    "https://blog.example/post/2",
+  );
+
+  assert.match(
+    html,
+    /<a href="https:\/\/exemplo\.com\/materia" rel="noopener noreferrer">a matéria completa<\/a>/,
+  );
+  assert.match(
+    html,
+    /<a href="https:\/\/exemplo\.com\/" rel="noopener noreferrer"><img src="https:\/\/blog\.example\/capa\.jpg"/,
+  );
+  assert.doesNotMatch(html, /vazio/);
 });
 
 test("removes tracking pixels and hidden content", () => {

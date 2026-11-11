@@ -1,7 +1,7 @@
 # Política de Privacidade do Papers News
 
-Última atualização: 25 de outubro de 2026
-Versão do aplicativo: 0.3.1
+Última atualização: 11 de novembro de 2026
+Versão do aplicativo: 0.8.0
 
 ## Resumo
 
@@ -40,8 +40,8 @@ No navegador, ficam no armazenamento local do próprio site (`http://127.0.0.1:5
 O Papers News não coleta dados, mas é um leitor de notícias: para exibir conteúdo atualizado ele precisa acessar a internet.
 
 1. **Atualização de feeds.** O app faz uma requisição ao site que você cadastrou (diretamente ou pelo proxy local em `http://127.0.0.1:8787`). Como em qualquer leitor RSS, esse site recebe seu endereço IP, um *user-agent* de navegador e a URL solicitada.
-2. **Imagens das notícias.** As imagens são carregadas dos servidores das publicações. Esses servidores também veem seu endereço IP. O app não envia cookies desses sites nem scripts de rastreamento.
-3. **Links abertos.** "Abrir publicação" abre o link no seu navegador padrão; a partir daí valem as políticas do site visitado.
+2. **Imagens das notícias.** As imagens são carregadas dos servidores das publicações. Quando o feed não traz foto de capa, o app abre a página original da notícia (pelo proxy local) para procurar a imagem, como faria o modo de leitura. Esses servidores também veem seu endereço IP. O app não envia cookies desses sites nem scripts de rastreamento.
+3. **Links abertos.** "Abrir publicação" e os links dentro do modo de leitura abrem no seu navegador padrão; a partir daí valem as políticas do site visitado.
 4. **Serviços públicos de fallback.** Se o proxy local não estiver disponível (por exemplo, ao abrir o projeto no navegador sem `npm run dev`) **ou não conseguir acessar um feed**, o app tenta `api.rss2json.com` e `api.allorigins.win` como última alternativa para contornar CORS e bloqueios do site. Nesse caso, **a URL do feed é enviada a esses serviços de terceiros**. No app desktop o proxy local é iniciado automaticamente, então isso é uma exceção — mas é uma saída de dados possível e está documentada aqui.
 
 O proxy local escuta apenas em `127.0.0.1` (loopback) por padrão e não é acessível pela internet.

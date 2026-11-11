@@ -6,10 +6,11 @@ const PORT = Number(process.env.FEED_PROXY_PORT || 8787);
 const ALLOW_PRIVATE_HOSTS = process.env.FEED_PROXY_ALLOW_PRIVATE === "1";
 const REQUEST_TIMEOUT_MS = 25000;
 const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
 const MAX_REDIRECTS = 5;
 const WATCHDOG_INTERVAL_MS = 2000;
 const USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.6.5";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 PapersNews/0.8.0";
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -166,6 +167,58 @@ async function fetchTarget(target) {
   };
 }
 
+/**
+ * Baixa a imagem como binário (sem passar pelo decodificador de texto). Serve
+ * para os sites que bloqueiam a foto quando ela é pedida direto pelo WebView.
+ */
+async function fetchImage(target) {
+  let currentTarget = target;
+  let response;
+
+  for (let redirects = 0; ; redirects += 1) {
+    response = await fetch(currentTarget, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: {
+        "user-agent": USER_AGENT,
+        accept: "image/avif,image/webp,image/png,image/jpeg,image/*;q=0.9,*/*;q=0.8",
+        "accept-language": "pt-BR,pt;q=0.9,en;q=0.8",
+        // Vários CDNs recusam a imagem sem o referer do próprio site; usar a
+        // origem como referer é o mais próximo de um navegador abrindo o link.
+        referer: `${currentTarget.origin}/`,
+        "cache-control": "no-cache",
+      },
+    });
+
+    const location = response.headers.get("location");
+    if (![301, 302, 303, 307, 308].includes(response.status) || !location) break;
+    if (redirects >= MAX_REDIRECTS) {
+      throw new Error("O site redirecionou vezes demais.");
+    }
+
+    const redirectTarget = parseTarget(new URL(location, currentTarget).href);
+    await response.body?.cancel();
+    currentTarget = redirectTarget;
+  }
+
+  const declaredLength = Number(response.headers.get("content-length") || 0);
+  if (declaredLength > MAX_IMAGE_BYTES) {
+    throw new Error("A imagem é grande demais para ser carregada.");
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.byteLength > MAX_IMAGE_BYTES) {
+    throw new Error("A imagem é grande demais para ser carregada.");
+  }
+
+  return {
+    status: response.status,
+    finalUrl: response.url || currentTarget.href,
+    contentType: response.headers.get("content-type") || "application/octet-stream",
+    buffer,
+  };
+}
+
 let server;
 
 if (require.main === module) {
@@ -184,7 +237,42 @@ if (require.main === module) {
     const requestUrl = new URL(request.url || "/", `http://${HOST}:${PORT}`);
 
     if (requestUrl.pathname === "/health") {
-      sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.6.5" });
+      sendJson(response, 200, { ok: true, service: "papers-news-feed-proxy", version: "0.8.0" });
+      return;
+    }
+
+    if (requestUrl.pathname === "/image") {
+      const rawImage = requestUrl.searchParams.get("url");
+      if (!rawImage) {
+        sendJson(response, 400, { error: "Informe a URL da imagem em ?url=." });
+        return;
+      }
+
+      let imageTarget;
+      try {
+        imageTarget = parseTarget(rawImage);
+      } catch (error) {
+        sendJson(response, 400, { error: error.message });
+        return;
+      }
+
+      try {
+        const image = await fetchImage(imageTarget);
+        response.writeHead(image.status, {
+          ...CORS_HEADERS,
+          "content-type": image.contentType,
+          "content-length": image.buffer.length,
+          "cache-control": "public, max-age=86400",
+          "x-final-url": image.finalUrl,
+        });
+        response.end(image.buffer);
+      } catch (error) {
+        const message =
+          error?.name === "TimeoutError" || error?.name === "AbortError"
+            ? "O site demorou demais para responder."
+            : error?.message || "Falha ao carregar a imagem.";
+        sendText(response, 502, message, { "x-final-url": imageTarget.href });
+      }
       return;
     }
 
@@ -195,6 +283,7 @@ if (require.main === module) {
         [
           "Proxy local do Papers News.",
           "Uso: /fetch?url=https%3A%2F%2Fexemplo.com%2Ffeed%2F",
+          "Imagens: /image?url=https%3A%2F%2Fexemplo.com%2Ffoto.jpg",
           "Saúde: /health",
         ].join("\n"),
       );

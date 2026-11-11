@@ -60,6 +60,7 @@ const allowedTags = new Set([
   "em",
   "b",
   "i",
+  "a",
   "figure",
   "figcaption",
   "img",
@@ -204,6 +205,26 @@ function sanitizeChildren(sourceNode, document, baseUrl, target) {
     if (tag === "img") {
       const image = buildImage(child, document, baseUrl);
       if (image) target.appendChild(image);
+      continue;
+    }
+
+    if (tag === "a") {
+      // Só links http(s) absolutos viram âncoras. Endereços perigosos
+      // (javascript:, data:) ou vazios mantêm apenas o texto.
+      const href = resolveHttpUrl(child.getAttribute("href") || "", baseUrl);
+      if (!href) {
+        sanitizeChildren(child, document, baseUrl, target);
+        continue;
+      }
+
+      const anchor = document.createElement("a");
+      anchor.setAttribute("href", href);
+      anchor.setAttribute("rel", "noopener noreferrer");
+      sanitizeChildren(child, document, baseUrl, anchor);
+
+      const hasText = textLengthOf(anchor) > 0;
+      const hasImage = anchor.getElementsByTagName("img").length > 0;
+      if (hasText || hasImage) target.appendChild(anchor);
       continue;
     }
 

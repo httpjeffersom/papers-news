@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.8.0] - 2026-11-11
+
+### Adicionado
+
+- O feed é atualizado automaticamente ao abrir o programa (quando há fontes cadastradas).
+- Todo cartão do feed mostra uma imagem: se o feed não trouxer foto, o Papers News busca a imagem de capa na página original; se ela for bloqueada, tenta de novo pelo proxy local; por último, aparece um marcador com as iniciais da fonte.
+- Links voltaram ao modo de leitura. Eles abrem no navegador, sem tirar você do aplicativo.
+
 ## [0.7.0] - 2026-11-08
 
 ### Adicionado

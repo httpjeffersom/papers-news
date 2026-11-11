@@ -114,6 +114,14 @@ async function startProxy() {
   return false;
 }
 
+// O WebView não pode abrir conexões arbitrárias sem CORS, mas uma tag <img>
+// pode. Ainda assim, alguns sites bloqueiam a foto por causa do referer; nesse
+// caso a mesma imagem é pedida pelo proxy local, que busca como um navegador.
+export function proxiedImageUrl(url) {
+  if (typeof url !== "string" || !/^https?:\/\//i.test(url)) return "";
+  return `${proxyBaseUrl}/image?url=${encodeURIComponent(url)}`;
+}
+
 /**
  * No app desktop empacotado, o proxy de feeds é um processo Node.js separado.
  * Ele é iniciado sob demanda porque o WebView não pode abrir conexões

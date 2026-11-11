@@ -25,15 +25,16 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Feed de notícias com busca por título, resumo e nome da fonte.
 - Favoritos para guardar publicações.
 - Cadastro e remoção de sites e feeds RSS/Atom.
-- Atualização das publicações das fontes cadastradas.
+- Atualização automática ao abrir o programa, além do botão para atualizar quando quiser.
 - Fontes, notícias em cache e favoritos preservados no armazenamento local.
 - Retenção configurável de 1 a 30 dias: notícias antigas são apagadas para liberar espaço, mas os favoritos ficam guardados para sempre.
 - Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
 - Interface Fluent Design (Windows 11), com tema claro ou escuro.
 - Configurações de tema, tamanho do texto e retenção das notícias.
-- Modo de leitura dentro do app, no estilo Instapaper, sem menus e anúncios.
-- Interface responsiva em português, com estados de carregamento, erro e lista vazia.
+- Modo de leitura dentro do app, no estilo Instapaper, sem menus e anúncios; os links do texto abrem no navegador.
+- Imagem de capa em todo cartão: quando o feed não traz foto, o app procura a imagem na página original e, se o site bloquear, tenta pelo proxy local; no limite, aparece um marcador com as iniciais da fonte.
+- Interface responsiva em português ou inglês, com estados de carregamento, erro e lista vazia.
 - Abertura de publicações no navegador padrão do sistema.
 
 ## Tecnologias
@@ -133,7 +134,7 @@ Basta colar o endereço principal do site (por exemplo, `https://exemplo.com/`).
 
 Se o site não publica RSS/Atom ou não expõe o endereço, ainda é possível informar o feed diretamente (por exemplo, `https://exemplo.com/feed/`).
 
-A leitura acontece no proxy local (`scripts/feed-proxy.cjs`), que baixa o XML e o entrega ao app com os cabeçalhos de CORS necessários. O proxy usa o seu próprio IP, segue redirecionamentos, respeita o charset do feed, bloqueia endereços privados e limita a resposta a 15 MB. RSS2JSON e AllOrigins continuam existindo apenas como alternativas caso o proxy não esteja rodando.
+A leitura acontece no proxy local (`scripts/feed-proxy.cjs`), que baixa o XML e o entrega ao app com os cabeçalhos de CORS necessários. O proxy usa o seu próprio IP, segue redirecionamentos, respeita o charset do feed, bloqueia endereços privados e limita a resposta a 15 MB. A rota `/image?url=` faz o mesmo para fotos: baixa a imagem como binário (até 12 MB) com os cabeçalhos de um navegador, o que resolve os sites que recusam a imagem pedida direto pelo WebView. RSS2JSON e AllOrigins continuam existindo apenas como alternativas caso o proxy não esteja rodando.
 
 No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `feed-proxy.cjs` e é iniciado sob demanda pelo próprio aplicativo.
 

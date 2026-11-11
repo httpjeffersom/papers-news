@@ -745,6 +745,20 @@
   background: var(--bg-subtle);
 }
 
+/* Quando o feed e o site não trazem foto (ou ela é bloqueada), o cartão ganha
+   um marcador com as iniciais da fonte em vez de ficar sem imagem. */
+.article-image-fallback {
+  display: grid;
+  height: 170px;
+  place-items: center;
+  background: linear-gradient(135deg, var(--accent-soft), var(--bg-subtle));
+  color: var(--accent-text);
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 .article-summary {
   display: -webkit-box;
   margin: 8px 0 0;
@@ -1981,6 +1995,23 @@
   height: auto;
   margin: 1.6em 0;
   border-radius: 4px;
+}
+
+.reader-content a {
+  color: var(--paper-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.reader-content a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.reader-content a:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--paper-accent);
+  outline-offset: 2px;
 }
 
 .reader-content blockquote {

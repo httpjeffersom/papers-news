@@ -551,6 +551,129 @@ export async function fetchArticleHtml(url) {
   return text;
 }
 
+const imageMetaAttributes = [
+  ["property", "og:image"],
+  ["property", "og:image:url"],
+  ["property", "og:image:secure_url"],
+  ["name", "twitter:image"],
+  ["name", "twitter:image:src"],
+  ["itemprop", "image"],
+];
+
+const unusableImageIdentity =
+  /logo|icon|avatar|sprite|badge|placeholder|default[-_]?(?:image|thumb)/i;
+
+/**
+ * Procura a imagem de capa na própria página: primeiro as metatags que os
+ * sites usam para redes sociais e, se não houver, a primeira foto grande do
+ * conteúdo. É o que permite mostrar imagem para feeds que não trazem nenhuma.
+ */
+export function extractArticleImage(pageHtml, pageUrl = "") {
+  if (typeof pageHtml !== "string" || !pageHtml.trim()) return "";
+
+  let document;
+  try {
+    document = new DOMParser().parseFromString(pageHtml, "text/html");
+  } catch {
+    return "";
+  }
+
+  const fromMeta = (attribute, value) => {
+    for (const meta of [...document.getElementsByTagName("meta")]) {
+      if ((meta.getAttribute(attribute) || "").toLowerCase() !== value) continue;
+      const image = resolveHttpUrl(meta.getAttribute("content") || "", pageUrl);
+      if (image) return image;
+    }
+
+    return "";
+  };
+
+  for (const [attribute, value] of imageMetaAttributes) {
+    const image = fromMeta(attribute, value);
+    if (image) return image;
+  }
+
+  for (const link of [...document.getElementsByTagName("link")]) {
+    if ((link.getAttribute("rel") || "").toLowerCase() !== "image_src") continue;
+    const image = resolveHttpUrl(link.getAttribute("href") || "", pageUrl);
+    if (image) return image;
+  }
+
+  for (const element of [...document.getElementsByTagName("img")]) {
+    const identity = `${element.getAttribute("class") || ""} ${element.getAttribute("id") || ""}`;
+    if (unusableImageIdentity.test(identity)) continue;
+
+    const width = Number(element.getAttribute("width") || 0);
+    if (width > 0 && width < 300) continue;
+
+    const image = resolveHttpUrl(
+      element.getAttribute("src") ||
+        element.getAttribute("data-src") ||
+        element.getAttribute("data-original") ||
+        "",
+      pageUrl,
+    );
+    if (image) return image;
+  }
+
+  return "";
+}
+
+const maxImageLookupsPerRefresh = 20;
+const imageLookupConcurrency = 5;
+
+/**
+ * Completa as imagens que o feed não trouxe: reutiliza a foto já conhecida de
+ * uma atualização anterior e, quando não há nenhuma, busca na página original.
+ */
+async function fillMissingImages(articles, cachedArticles) {
+  const cachedById = new Map(
+    cachedArticles.map((article) => [article.id, article]),
+  );
+
+  for (const article of articles) {
+    if (article.image) continue;
+    const cached = cachedById.get(article.id);
+    if (cached?.image) article.image = cached.image;
+  }
+
+  const missing = articles
+    .filter(
+      (article) =>
+        !article.image &&
+        !article.isDemo &&
+        /^https?:\/\//i.test(article.url || ""),
+    )
+    .sort(
+      (a, b) =>
+        (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0),
+    )
+    .slice(0, maxImageLookupsPerRefresh);
+
+  if (missing.length === 0) return;
+
+  let cursor = 0;
+  const workers = Array.from(
+    { length: Math.min(imageLookupConcurrency, missing.length) },
+    async () => {
+      while (cursor < missing.length) {
+        const article = missing[cursor];
+        cursor += 1;
+
+        try {
+          const pageHtml = await fetchArticleHtml(article.url);
+          const image = extractArticleImage(pageHtml, article.url);
+          if (image) article.image = image;
+        } catch {
+          // Sem imagem: o cartão mostra o marcador com as iniciais da fonte.
+        }
+      }
+    },
+  );
+
+  await Promise.all(workers);
+}
+
 async function fetchTextViaBestTransport(url, timeout) {
   if (await isLocalProxyAvailable()) {
     return fetchTextViaLocalProxy(url, timeout);
@@ -612,6 +735,8 @@ export async function refreshNews(sources = [], cachedArticles = [], savedIds = 
       ...cachedArticles.filter((article) => article.sourceId === source.id),
     );
   });
+
+  await fillMissingImages(articles, cachedArticles);
 
   return {
     articles: sortArticlesByDateDesc(articles),

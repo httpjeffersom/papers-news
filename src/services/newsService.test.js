@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { DOMParser as XmlDOMParser } from "@xmldom/xmldom";
 import {
   discoverAndFetchSource,
+  extractArticleImage,
   refreshNews,
   resetFeedTransportCache,
 } from "./newsService.js";
@@ -112,6 +113,52 @@ test("updates available sources while retaining failed and saved articles", asyn
     assert.deepEqual(result.errors.map((error) => error.sourceName), ["Unavailable News"]);
     assert.match(result.errors[0].message, /HTTP 503/);
   });
+});
+
+test("finds the cover image in the article page", () => {
+  const originalParser = globalThis.DOMParser;
+  globalThis.DOMParser = XmlDOMParser;
+
+  try {
+    const withMeta = [
+      "<html><head>",
+      '<meta property="og:image" content="/capa.jpg" />',
+      "</head><body><p>Texto</p></body></html>",
+    ].join("");
+    assert.equal(
+      extractArticleImage(withMeta, "https://site.example/post/1"),
+      "https://site.example/capa.jpg",
+    );
+
+    const withTwitter = [
+      "<html><head>",
+      '<meta name="twitter:image" content="https://cdn.example/foto.png" />',
+      "</head><body></body></html>",
+    ].join("");
+    assert.equal(
+      extractArticleImage(withTwitter, "https://site.example/post/2"),
+      "https://cdn.example/foto.png",
+    );
+
+    const withContentImage = [
+      "<html><body>",
+      '<img class="site-logo" src="/logo.png" width="600" />',
+      '<img src="/fotos/materia.jpg" width="900" />',
+      "</body></html>",
+    ].join("");
+    assert.equal(
+      extractArticleImage(withContentImage, "https://site.example/post/3"),
+      "https://site.example/fotos/materia.jpg",
+    );
+
+    assert.equal(extractArticleImage("", "https://site.example/"), "");
+  } finally {
+    if (originalParser === undefined) {
+      delete globalThis.DOMParser;
+    } else {
+      globalThis.DOMParser = originalParser;
+    }
+  }
 });
 
 test("returns cached articles instead of demo content when there are no real sources", async () => {
