@@ -2,6 +2,19 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.9.0] - 2026-11-11
+
+### Alterado
+
+- Fontes, notícias em cache e favoritos agora ficam no **IndexedDB**, com cota dinâmica e espaço para muitos feeds. Tema, idioma, tamanho do texto e retenção continuam no `localStorage`, por serem preferências pequenas.
+- A abertura do aplicativo passou a carregar o estado de forma assíncrona, com uma tela de carregamento, enquanto os dados são lidos do banco.
+- As alterações são gravadas em fila e por partes: favoritar ou desfavoritar uma publicação grava apenas a lista de favoritos, sem reescrever todas as notícias.
+
+### Adicionado
+
+- Migração automática dos dados antigos de `papers-news:state:v1` para o IndexedDB na primeira execução. A cópia antiga é removida somente depois de uma conferência.
+- Fallback para o `localStorage` quando o IndexedDB não está disponível.
+
 ## [0.8.0] - 2026-11-11
 
 ### Adicionado

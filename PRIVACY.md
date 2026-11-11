@@ -1,7 +1,7 @@
 # Política de Privacidade do Papers News
 
 Última atualização: 11 de novembro de 2026
-Versão do aplicativo: 0.8.0
+Versão do aplicativo: 0.9.0
 
 ## Resumo
 
@@ -15,13 +15,19 @@ O Papers News não possui servidor próprio. Nada é enviado para o autor do pro
 
 ## Quais dados ficam no seu dispositivo
 
-O aplicativo guarda um único estado no `localStorage` do WebView2, com a chave `papers-news:state:v1`:
+O aplicativo guarda os dados em dois armazenamentos locais:
+
+**IndexedDB (banco `papers-news`)** — fontes, notícias em cache e favoritos:
 
 | Dado | Conteúdo | Finalidade |
 | --- | --- | --- |
 | Fontes | nome, endereço do site e URL do feed | montar e atualizar o feed |
 | Notícias em cache | título, resumo, link, data, nome da fonte e URL da imagem | leitura offline e atualização parcial |
 | Favoritos | identificadores das publicações guardadas | manter a lista "Salvos" |
+
+**localStorage** — apenas preferências pequenas: tema, tamanho do texto, idioma e retenção das notícias.
+
+O IndexedDB tem cota dinâmica, normalmente uma fração do espaço livre do disco, em vez do limite fixo de alguns megabytes do `localStorage`. Isso permite acompanhar muitos feeds sem que o aplicativo pare de salvar. Na primeira execução desta versão, o estado antigo de `papers-news:state:v1` é copiado para o IndexedDB e só removido do `localStorage` depois da conferência. Se o IndexedDB não estiver disponível, o app recorre ao `localStorage`.
 
 Não são coletados nem gravados pelo aplicativo: nome, e-mail, senha, localização, identificadores de dispositivo ou histórico de navegação.
 
@@ -30,10 +36,11 @@ O WebView2 mantém um cache próprio de páginas, imagens e dados do perfil na p
 No aplicativo desktop, esses dados ficam em:
 
 ```text
+%APPDATA%\papers-news-win_x64.exe\EBWebView\Default\IndexedDB
 %APPDATA%\papers-news-win_x64.exe\EBWebView\Default\Local Storage
 ```
 
-No navegador, ficam no armazenamento local do próprio site (`http://127.0.0.1:5173` em desenvolvimento ou a origem usada no preview). O espaço é limitado pelo `localStorage` do WebView2; quando ele enche, o app avisa e permite remover fontes ou favoritos.
+No navegador, ficam no armazenamento local do próprio site (`http://127.0.0.1:5173` em desenvolvimento ou a origem usada no preview). O espaço disponível é definido pelo navegador; quando ele enche, o app avisa e permite remover fontes ou favoritos.
 
 ## O que sai do dispositivo
 
@@ -70,7 +77,7 @@ Por isso, a descrição correta é "dados 100% locais, sem nuvem e sem telemetri
 - Remova fontes e favoritos pela própria interface.
 - Para apagar tudo no desktop: feche o aplicativo e exclua a pasta `%APPDATA%\papers-news-win_x64.exe`.
 - No navegador: limpe os dados do site nas configurações do navegador.
-- Não há exportação ou backup integrado nesta versão; os dados ficam em um único armazenamento local.
+- Não há exportação ou backup integrado nesta versão; os dados ficam nos armazenamentos locais descritos acima.
 
 ## Conteúdo de terceiros
 

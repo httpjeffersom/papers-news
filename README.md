@@ -12,7 +12,7 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 
 ## Privacidade e dados
 
-- **Tudo fica no seu computador.** Fontes, notícias em cache e favoritos são salvos no `localStorage` do aplicativo. Não existe conta, nuvem, sincronização ou backup remoto.
+- **Tudo fica no seu computador.** Fontes, notícias em cache e favoritos são salvos no IndexedDB do aplicativo, com preferências pequenas no `localStorage`. Não existe conta, nuvem, sincronização ou backup remoto.
 - **Zero telemetria.** Nenhum analytics, anúncio, rastreador ou relatório de erro. O projeto não mantém servidor e nada é enviado ao autor.
 - **Nenhum dado pessoal é coletado.** Não são pedidos nome, e-mail, localização ou identificadores de dispositivo.
 - **Offline para leitura.** O que já foi carregado continua acessível sem internet; atualizar as fontes e baixar imagens novas exige conexão.
@@ -26,7 +26,7 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Favoritos para guardar publicações.
 - Cadastro e remoção de sites e feeds RSS/Atom.
 - Atualização automática ao abrir o programa, além do botão para atualizar quando quiser.
-- Fontes, notícias em cache e favoritos preservados no armazenamento local.
+- Fontes, notícias em cache e favoritos preservados no IndexedDB, com espaço para muitos feeds.
 - Retenção configurável de 1 a 30 dias: notícias antigas são apagadas para liberar espaço, mas os favoritos ficam guardados para sempre.
 - Leitura das notícias em cache sem conexão com a internet.
 - Atualização parcial: uma fonte indisponível não impede as demais de atualizar.
@@ -49,7 +49,7 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 ## Estrutura do projeto
 
 - `src/components/`: cabeçalho, navegação, feed de notícias, fontes, configurações e modo de leitura.
-- `src/services/`: consulta e interpretação de feeds, armazenamento local e integração desktop para abrir links.
+- `src/services/`: consulta e interpretação de feeds, armazenamento local (IndexedDB e preferências) e integração desktop para abrir links.
 - `src/utils/`: utilitários compartilhados, como a ordenação de publicações por data.
 - `src/styles/`: tokens de design, estilos globais e estilos das telas.
 - `src/data/`: publicações e fontes de demonstração.
@@ -158,10 +158,10 @@ No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `
 - **O modo de leitura mostra apenas o resumo:** alguns sites escondem o texto atrás de login, paywall ou proteção contra robôs. Nesse caso, o Papers News exibe o resumo do feed e mantém o botão "Abrir publicação" para continuar no site.
 - **O executável do Windows não busca notícias:** mantenha o `papers-news-node.exe` e o `feed-proxy.cjs` na mesma pasta do `papers-news-win_x64.exe`. Eles são iniciados automaticamente; se você os removeu, gere o pacote novamente com `npm run desktop:package`.
 - **Não consigo adicionar um site:** confirme que o proxy local está ativo. `npm run dev`, `npm run preview` e `npm run desktop` o iniciam automaticamente; para rodar separado, use `npm run proxy`. Se a porta `8787` estiver ocupada por outro programa, inicie o proxy com `FEED_PROXY_PORT=8790` e defina `VITE_FEED_PROXY_URL=http://127.0.0.1:8790` para o app.
-- **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no `localStorage`. Não altere essa porta sem necessidade.
+- **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no IndexedDB. Não altere essa porta sem necessidade.
 - **O site não tem feed:** alguns sites não publicam RSS/Atom. Nesse caso, não há como montar o feed; cadastre a URL direta de um feed do mesmo site, se existir.
 - **O feed não atualiza:** verifique a conexão com o site. Se o proxy estiver desligado, o app tenta RSS2JSON e AllOrigins, que são serviços públicos e podem aplicar limites de uso.
-- **Aviso de armazenamento cheio:** remova fontes ou favoritos antigos. O estado do leitor é salvo no `localStorage` com a chave `papers-news:state:v1`.
+- **Aviso de armazenamento cheio:** remova fontes ou favoritos antigos. As fontes e publicações ficam no IndexedDB (banco `papers-news`); tema, idioma, tamanho do texto e retenção continuam no `localStorage`. Na primeira execução da 0.9.0, os dados antigos de `papers-news:state:v1` são migrados automaticamente.
 
 Consulte também o [CHANGELOG.md](CHANGELOG.md) para ver o que mudou em cada versão.
 

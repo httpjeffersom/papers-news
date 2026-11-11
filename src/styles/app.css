@@ -984,6 +984,27 @@
   animation: rotate 750ms linear infinite;
 }
 
+/* Abertura: o estado vem do IndexedDB de forma assíncrona. */
+.app-boot {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.app-boot-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+
+.app-boot-content p {
+  margin: 0;
+}
+
 .feed-footer {
   padding: 20px 0 4px;
   color: var(--text-3);

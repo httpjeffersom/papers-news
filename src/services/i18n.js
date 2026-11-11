@@ -191,8 +191,9 @@ const translations = {
     "app.moreSources": ({ count }) =>
       `e mais ${count} ${count === 1 ? "fonte" : "fontes"}`,
     "app.refreshError": "Não foi possível atualizar o feed. Tente novamente.",
+    "app.loadingStorage": "Carregando o seu espaço…",
     "app.storageFull":
-      "O armazenamento local está cheio. Remova fontes ou favoritos para liberar espaço.",
+      "O armazenamento do aplicativo está cheio. Remova fontes ou diminua o tempo de retenção das notícias.",
     "app.saveError": "Não foi possível salvar suas alterações neste dispositivo.",
     "app.alreadyAdded": "Este site já está cadastrado.",
     "app.addSourceError": "Não foi possível adicionar este site.",
@@ -361,8 +362,9 @@ const translations = {
     "app.moreSources": ({ count }) =>
       `and ${count} more ${count === 1 ? "source" : "sources"}`,
     "app.refreshError": "Couldn't refresh the feed. Try again.",
+    "app.loadingStorage": "Loading your space…",
     "app.storageFull":
-      "Local storage is full. Remove sources or favorites to free up space.",
+      "The app storage is full. Remove sources or reduce how long stories are kept.",
     "app.saveError": "Couldn't save your changes on this device.",
     "app.alreadyAdded": "This site is already added.",
     "app.addSourceError": "Couldn't add this site.",

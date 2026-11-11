@@ -76,7 +76,8 @@ Requisitos: Windows 10 ou 11 com o Microsoft Edge WebView2 Runtime
 (presente por padrão no Windows 11 e na maioria dos Windows 10).
 
 Seus dados (fontes, notícias em cache e favoritos) ficam salvos no
-armazenamento local do aplicativo, neste computador.
+IndexedDB do aplicativo, neste computador. Na primeira execução, os
+dados da versão anterior são migrados automaticamente.
 `;
 
 async function main() {

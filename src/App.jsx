@@ -10,7 +10,7 @@ import { useI18n } from "./i18n/LanguageContext.jsx";
 import { useFontSize } from "./hooks/useFontSize.js";
 import { useRetentionDays } from "./hooks/useRetentionDays.js";
 import { useTheme } from "./hooks/useTheme.js";
-import { loadAppState, saveAppState } from "./services/appStorage.js";
+import { loadAppStateAsync, saveAppStateAsync } from "./services/appStorage.js";
 import { ensureDesktopProxy } from "./services/desktopProxy.js";
 import { discoverAndFetchSource, refreshNews } from "./services/newsService.js";
 import { pruneExpiredArticles } from "./utils/articleRetention.js";
@@ -38,9 +38,48 @@ function formatRefreshFailures(errors, t) {
   return `${shownFailures}; ${t("app.moreSources", { count: remaining })}`;
 }
 
+function AppBootScreen() {
+  const { t } = useI18n();
+
+  return (
+    <div className="app-shell app-boot" role="status" aria-live="polite">
+      <div className="app-boot-content">
+        <span className="spinner" />
+        <p>{t("app.loadingStorage")}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  // `undefined` = carregando; `null` = primeira execução, sem dados salvos.
+  const [initialState, setInitialState] = useState(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const state = await loadAppStateAsync();
+        if (!cancelled) setInitialState(state);
+      } catch (error) {
+        console.error("Não foi possível carregar os dados do Papers News:", error);
+        if (!cancelled) setInitialState(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (initialState === undefined) return <AppBootScreen />;
+
+  return <AppWorkspace initialState={initialState} />;
+}
+
+function AppWorkspace({ initialState }) {
   const { language, t } = useI18n();
-  const [initialState] = useState(loadAppState);
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize } = useFontSize();
   const { retentionDays, setRetentionDays } = useRetentionDays();
@@ -64,6 +103,12 @@ export default function App() {
   const [persistenceError, setPersistenceError] = useState("");
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [sourceError, setSourceError] = useState("");
+
+  // A gravação acontece em fila para preservar a ordem das alterações. O estado
+  // anterior permite reescrever somente a parte que mudou (favoritos, por
+  // exemplo, não obrigam a regravar todas as publicações).
+  const persistedState = useRef(initialState);
+  const saveQueue = useRef(Promise.resolve());
 
   // Ao abrir, atualiza os feeds sozinho. Só vale a pena quando existe ao menos
   // uma fonte de verdade — o conteúdo de demonstração não depende de rede.
@@ -110,16 +155,21 @@ export default function App() {
   }, [language]);
 
   useEffect(() => {
-    try {
-      saveAppState({ sources, articles, savedIds });
-      setPersistenceError("");
-    } catch (error) {
-      console.error("Não foi possível salvar os dados do Papers News:", error);
-      setPersistenceError(
-        isStorageQuotaError(error) ? t("app.storageFull") : t("app.saveError"),
-      );
-    }
-  }, [articles, savedIds, sources]);
+    const snapshot = { sources, articles, savedIds };
+
+    saveQueue.current = saveQueue.current.then(async () => {
+      try {
+        await saveAppStateAsync(snapshot, persistedState.current);
+        persistedState.current = snapshot;
+        setPersistenceError("");
+      } catch (error) {
+        console.error("Não foi possível salvar os dados do Papers News:", error);
+        setPersistenceError(
+          isStorageQuotaError(error) ? t("app.storageFull") : t("app.saveError"),
+        );
+      }
+    });
+  }, [articles, savedIds, sources, t]);
 
   const visibleArticles = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase(language);
