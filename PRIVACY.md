@@ -1,7 +1,7 @@
 # Política de Privacidade do Papers News
 
 Última atualização: 12 de novembro de 2026
-Versão do aplicativo: 0.10.0
+Versão do aplicativo: 1.0.0
 
 ## Resumo
 

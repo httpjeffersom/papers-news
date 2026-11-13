@@ -100,7 +100,7 @@ Export-PfxCertificate -Cert $cert -FilePath "$env:TEMP\papers-news-teste.pfx" -P
 Export-Certificate -Cert $cert -FilePath "$env:TEMP\papers-news-teste.cer"
 
 # 2. Assine uma cópia com o signtool (também vem no Windows SDK).
-Copy-Item "dist\papers-news-0.10.0-win_x64.msix" "$env:TEMP\papers-news-teste.msix"
+Copy-Item "dist\papers-news-1.0.0-win_x64.msix" "$env:TEMP\papers-news-teste.msix"
 signtool sign /fd SHA256 /f "$env:TEMP\papers-news-teste.pfx" /p "senha-de-teste" `
   "$env:TEMP\papers-news-teste.msix"
 

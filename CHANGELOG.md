@@ -2,7 +2,9 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
-## [0.10.0] - 2026-11-12
+## [1.0.0] - 2026-11-12
+
+Primeira versão estável, preparada para distribuição portátil e para a Microsoft Store.
 
 ### Adicionado
 
@@ -24,7 +26,7 @@ Todas as mudanças relevantes deste projeto são documentadas aqui.
 ### Corrigido
 
 - Descrição do aplicativo no `neutralino.config.json`, que estava com caracteres corrompidos.
-- Documentação de privacidade, README e avisos de terceiros atualizados para 0.10.0, incluindo os caminhos de dados do MSIX e a distinção entre navegador e desktop.
+- Documentação de privacidade, README e avisos de terceiros atualizados para 1.0.0, incluindo os caminhos de dados do MSIX e a distinção entre navegador e desktop.
 
 ## [0.9.0] - 2026-11-11
 

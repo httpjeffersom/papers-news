@@ -6,7 +6,7 @@ const { execFileSync } = require("node:child_process");
 const HOST = process.env.FEED_PROXY_HOST || "127.0.0.1";
 const PORT = Number(process.env.FEED_PROXY_PORT || 8787);
 const ALLOW_PRIVATE_HOSTS = process.env.FEED_PROXY_ALLOW_PRIVATE === "1";
-const APP_VERSION = process.env.PAPERS_NEWS_VERSION || "0.10.0";
+const APP_VERSION = process.env.PAPERS_NEWS_VERSION || "1.0.0";
 const REQUEST_TIMEOUT_MS = 25000;
 const MAX_RESPONSE_BYTES = 15 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
