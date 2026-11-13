@@ -3,6 +3,7 @@ resources/
 dist/
 bin/
 .tmp/
+.tools/
 .DS_Store
 Thumbs.db
 *.log

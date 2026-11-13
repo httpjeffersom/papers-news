@@ -283,7 +283,13 @@ test("discovers a feed from a site URL through the local proxy", async () => {
 
   globalThis.fetch = async (url) => {
     const raw = String(url);
-    if (raw.endsWith("/health")) return makeResponse("ok");
+    if (raw.endsWith("/health")) {
+      return makeResponse(
+        JSON.stringify({ ok: true, service: "papers-news-feed-proxy" }),
+        200,
+        { "content-type": "application/json" },
+      );
+    }
     if (raw.includes("/fetch?url=")) {
       const target = new URL(raw).searchParams.get("url");
       const response = routes[target];

@@ -1,10 +1,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralino.js/main/bin/resources/neutralino.config.schema.json",
   "applicationId": "com.papersnews.app",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "applicationName": "Papers News",
   "author": "Jeffersom",
-  "description": "Leitor pessoal de notÃ­cias RSS/Atom para desktop.",
+  "description": "Leitor pessoal de notícias RSS/Atom para desktop.",
   "defaultMode": "window",
   "port": 51789,
   "documentRoot": "/resources/",
@@ -12,15 +12,25 @@
   "enableServer": true,
   "enableNativeAPI": true,
   "tokenSecurity": "one-time",
+  "exportAuthInfo": false,
+  "dataLocation": "system",
+  "storageLocation": "system",
   "logging": {
     "enabled": true,
     "writeToLogFile": false
   },
   "nativeAllowList": [
     "os.open",
-    "os.getEnv",
     "os.spawnProcess"
   ],
+  "serverHeaders": {
+    "content-security-policy": "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; media-src 'none'; connect-src 'self' http://127.0.0.1:8787 ws://127.0.0.1:51789; worker-src 'none'; manifest-src 'self'",
+    "cross-origin-opener-policy": "same-origin",
+    "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "referrer-policy": "no-referrer",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "DENY"
+  },
   "modes": {
     "window": {
       "title": "Papers News",
@@ -32,6 +42,8 @@
       "center": true,
       "resizable": true,
       "maximizable": true,
+      "enableInspector": false,
+      "newWindowPolicy": "browser",
       "exitProcessOnClose": true
     }
   },

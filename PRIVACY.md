@@ -1,7 +1,7 @@
 # Política de Privacidade do Papers News
 
-Última atualização: 11 de novembro de 2026
-Versão do aplicativo: 0.9.0
+Última atualização: 12 de novembro de 2026
+Versão do aplicativo: 0.10.0
 
 ## Resumo
 
@@ -33,12 +33,20 @@ Não são coletados nem gravados pelo aplicativo: nome, e-mail, senha, localiza�
 
 O WebView2 mantém um cache próprio de páginas, imagens e dados do perfil na pasta do aplicativo; esse cache é gerenciado pelo runtime do Edge e não é enviado ao autor do Papers News.
 
-No aplicativo desktop, esses dados ficam em:
+No aplicativo desktop portátil (ZIP), esses dados ficam em:
 
 ```text
 %APPDATA%\papers-news-win_x64.exe\EBWebView\Default\IndexedDB
 %APPDATA%\papers-news-win_x64.exe\EBWebView\Default\Local Storage
 ```
+
+No pacote MSIX da Microsoft Store, o Windows virtualiza a pasta `%APPDATA%` do aplicativo. O caminho físico fica dentro do pacote e é preservado nas atualizações:
+
+```text
+%LOCALAPPDATA%\Packages\<PackageFamilyName>\LocalCache\Roaming\papers-news-win_x64.exe\EBWebView
+```
+
+A pasta de instalação do MSIX (`WindowsApps`) é somente leitura. Por isso os arquivos internos do Neutralino usam `dataLocation: "system"` e ficam na área de dados do usuário, não ao lado do executável.
 
 No navegador, ficam no armazenamento local do próprio site (`http://127.0.0.1:5173` em desenvolvimento ou a origem usada no preview). O espaço disponível é definido pelo navegador; quando ele enche, o app avisa e permite remover fontes ou favoritos.
 
@@ -49,9 +57,11 @@ O Papers News não coleta dados, mas é um leitor de notícias: para exibir cont
 1. **Atualização de feeds.** O app faz uma requisição ao site que você cadastrou (diretamente ou pelo proxy local em `http://127.0.0.1:8787`). Como em qualquer leitor RSS, esse site recebe seu endereço IP, um *user-agent* de navegador e a URL solicitada.
 2. **Imagens das notícias.** As imagens são carregadas dos servidores das publicações. Quando o feed não traz foto de capa, o app abre a página original da notícia (pelo proxy local) para procurar a imagem, como faria o modo de leitura. Esses servidores também veem seu endereço IP. O app não envia cookies desses sites nem scripts de rastreamento.
 3. **Links abertos.** "Abrir publicação" e os links dentro do modo de leitura abrem no seu navegador padrão; a partir daí valem as políticas do site visitado.
-4. **Serviços públicos de fallback.** Se o proxy local não estiver disponível (por exemplo, ao abrir o projeto no navegador sem `npm run dev`) **ou não conseguir acessar um feed**, o app tenta `api.rss2json.com` e `api.allorigins.win` como última alternativa para contornar CORS e bloqueios do site. Nesse caso, **a URL do feed é enviada a esses serviços de terceiros**. No app desktop o proxy local é iniciado automaticamente, então isso é uma exceção — mas é uma saída de dados possível e está documentada aqui.
+4. **Serviços públicos de fallback (somente no navegador).** Ao abrir o projeto no navegador sem `npm run dev`, o proxy local pode não estar disponível. Nesse caso, o app tenta `api.rss2json.com` e `api.allorigins.win` como alternativa para contornar CORS e bloqueios do site, e **a URL do feed é enviada a esses serviços de terceiros**.
 
-O proxy local escuta apenas em `127.0.0.1` (loopback) por padrão e não é acessível pela internet.
+**No aplicativo desktop (portátil ou MSIX), esses serviços públicos não são usados.** O proxy local é iniciado automaticamente e é o único caminho de rede para os feeds. Se ele falhar, o app mostra um erro em vez de enviar a URL do feed a terceiros.
+
+O proxy local escuta apenas em `127.0.0.1` (loopback) por padrão e não é acessível pela internet. Ele também recusa requisições de páginas abertas em outros sites (`Sec-Fetch-Site: cross-site`) e endereços de rede local/privada.
 
 ## O que o aplicativo não faz
 
@@ -75,7 +85,8 @@ Por isso, a descrição correta é "dados 100% locais, sem nuvem e sem telemetri
 ## Controle e exclusão dos dados
 
 - Remova fontes e favoritos pela própria interface.
-- Para apagar tudo no desktop: feche o aplicativo e exclua a pasta `%APPDATA%\papers-news-win_x64.exe`.
+- **Versão portátil (ZIP):** feche o aplicativo e exclua a pasta `%APPDATA%\papers-news-win_x64.exe`.
+- **Versão MSIX:** desinstale o Papers News em Configurações → Aplicativos. O Windows remove os dados virtualizados do pacote. Para apagar antes, feche o app e exclua `%LOCALAPPDATA%\Packages\<PackageFamilyName>`.
 - No navegador: limpe os dados do site nas configurações do navegador.
 - Não há exportação ou backup integrado nesta versão; os dados ficam nos armazenamentos locais descritos acima.
 

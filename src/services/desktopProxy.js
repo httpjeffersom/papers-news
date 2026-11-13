@@ -7,6 +7,9 @@ const proxyBaseUrl = (
 // a execução em algumas máquinas.
 const proxyRuntime = "papers-news-node.exe";
 const proxyScript = "feed-proxy.cjs";
+// O proxy usa esta porta para saber se o aplicativo ainda está aberto. Assim
+// ele encerra sozinho quando a janela fecha, sem depender de WMI/PowerShell.
+const appServerPort = 51789;
 const healthTimeoutMs = 1500;
 const startTimeoutMs = 20000;
 const retryCooldownMs = 30000;
@@ -19,7 +22,11 @@ function neutralino() {
 }
 
 export function isDesktopRuntime() {
-  return typeof neutralino()?.os?.spawnProcess === "function";
+  if (typeof neutralino()?.os?.spawnProcess === "function") return true;
+
+  // A porta fixa identifica o app empacotado mesmo antes de o cliente nativo
+  // terminar de carregar. No Vite (5173/4173) isso continua falso.
+  return String(globalThis.location?.port || "") === String(appServerPort);
 }
 
 function withTimeout(ms) {
@@ -36,7 +43,12 @@ async function isProxyHealthy() {
       signal: withTimeout(healthTimeoutMs),
       cache: "no-store",
     });
-    return response.ok;
+    if (!response.ok) return false;
+
+    // Confere a identidade do serviço. Sem isso, qualquer programa que ocupe
+    // a porta 8787 seria confundido com o proxy do Papers News.
+    const data = await response.json().catch(() => null);
+    return data?.service === "papers-news-feed-proxy";
   } catch {
     return false;
   }
@@ -101,8 +113,11 @@ async function startProxy() {
       // A saída é descartada de propósito: quando o caminho não existe, o
       // cmd responde em CP850, e o Neutralino encerra o processo ao tentar
       // serializar esses bytes como UTF-8.
+      //
+      // PAPERS_NEWS_APP_PORT faz o proxy acompanhar o servidor local do app.
+      // Quando a janela fecha, o servidor para e o proxy encerra em segundos.
       await neutralino().os.spawnProcess(
-        `"${command.runtime}" "${command.script}" > NUL 2>&1`,
+        `set PAPERS_NEWS_APP_PORT=${appServerPort}&& "${command.runtime}" "${command.script}" > NUL 2>&1`,
       );
     } catch {
       continue;

@@ -202,6 +202,10 @@ const translations = {
       "Não foi possível carregar {url}.{proxyHint} Detalhes: {detail}",
     "error.proxyHint":
       ' O proxy local não está ativo; rode "npm run dev" (ou "npm run proxy") e tente de novo.',
+    "error.proxyHintDesktop":
+      " O proxy local não iniciou. Feche e abra o Papers News novamente; se continuar, reinstale o aplicativo.",
+    "error.openPageDesktop":
+      "Não foi possível abrir {url} porque o proxy local não está ativo. Feche e abra o Papers News novamente.",
     "error.allOrigins": "AllOrigins respondeu HTTP {status}",
     "error.rss2json": "RSS2JSON respondeu HTTP {status}",
     "error.rss2jsonRead": "RSS2JSON não conseguiu ler este feed.",
@@ -373,6 +377,10 @@ const translations = {
       "Couldn't load {url}.{proxyHint} Details: {detail}",
     "error.proxyHint":
       ' The local proxy isn\'t running; run "npm run dev" (or "npm run proxy") and try again.',
+    "error.proxyHintDesktop":
+      " The local proxy didn't start. Close and reopen Papers News; if it persists, reinstall the app.",
+    "error.openPageDesktop":
+      "Couldn't open {url} because the local proxy isn't running. Close and reopen Papers News.",
     "error.allOrigins": "AllOrigins responded HTTP {status}",
     "error.rss2json": "RSS2JSON responded HTTP {status}",
     "error.rss2jsonRead": "RSS2JSON couldn't read this feed.",

@@ -2,6 +2,30 @@
 
 Todas as mudanças relevantes deste projeto são documentadas aqui.
 
+## [0.10.0] - 2026-11-12
+
+### Adicionado
+
+- **Pacote MSIX para a Microsoft Store** (`npm run desktop:msix`): manifesto, ícones gerados a partir do ícone do app, identidade configurável em `appx/msix.config.json` e instruções de publicação em `appx/README.md`. A Store reassina o pacote; não é necessário certificado de autoridade certificadora.
+- Cabeçalhos de segurança na interface desktop, incluindo Política de Segurança de Conteúdo (CSP) restritiva, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` e `Permissions-Policy`.
+- Testes para a validação de links externos e para o proxy local.
+
+### Alterado
+
+- O script de boot (tema, tamanho do texto e idioma) saiu do HTML e virou `public/boot.js`, para funcionar com `script-src 'self'` sem exceções.
+- Links externos só são abertos no navegador quando usam `http:` ou `https:`. Esquemas como `javascript:`, `data:` e `file:` são descartados.
+- No aplicativo desktop, os serviços públicos de CORS (RSS2JSON e AllOrigins) foram desativados. Se o proxy local falhar, o app mostra um erro em vez de enviar a URL do feed a terceiros.
+- O proxy local passou a aceitar apenas as origens da própria interface, recusar requisições `Sec-Fetch-Site: cross-site`, bloquear nomes que resolvem para endereços privados e validar o tipo real das imagens por assinatura binária.
+- O proxy encerra sozinho quando a janela do aplicativo fecha, sem depender de WMI/PowerShell.
+- `dataLocation` e `storageLocation` agora usam `"system"`: a pasta de instalação do MSIX é somente leitura, então os arquivos internos do Neutralino ficam na área de dados do usuário.
+- A allowlist de APIs nativas foi reduzida a `os.open` e `os.spawnProcess`, e o inspetor do WebView foi desativado.
+- A janela do aplicativo abre links em nova janela no navegador padrão (`newWindowPolicy: "browser"`).
+
+### Corrigido
+
+- Descrição do aplicativo no `neutralino.config.json`, que estava com caracteres corrompidos.
+- Documentação de privacidade, README e avisos de terceiros atualizados para 0.10.0, incluindo os caminhos de dados do MSIX e a distinção entre navegador e desktop.
+
 ## [0.9.0] - 2026-11-11
 
 ### Alterado

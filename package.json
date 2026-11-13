@@ -1,6 +1,6 @@
 {
   "name": "papers-news",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "description": "Leitor pessoal de notícias RSS/Atom, local-first, sem telemetria e de código aberto.",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "test": "node --test",
     "desktop": "node scripts/launch.mjs desktop",
     "desktop:package": "node scripts/package-desktop.mjs",
+    "desktop:msix": "node scripts/package-msix.mjs",
     "desktop:update": "neu update"
   },
   "dependencies": {

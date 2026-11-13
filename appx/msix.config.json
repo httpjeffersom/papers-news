@@ -1,0 +1,10 @@
+{
+  "identityName": "Jeffersom.PapersNews",
+  "publisher": "CN=Jeffersom",
+  "publisherDisplayName": "Jeffersom",
+  "displayName": "Papers News",
+  "shortName": "Papers News",
+  "description": "Leitor pessoal de notícias RSS/Atom, local-first e sem telemetria.",
+  "backgroundColor": "#F5F5F5",
+  "assetsSource": "public/app-icon.png"
+}

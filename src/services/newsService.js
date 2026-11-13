@@ -7,7 +7,7 @@ import {
   resolveHttpUrl,
 } from "./feedParser.js";
 import { sortArticlesByDateDesc } from "../utils/articleSort.js";
-import { ensureDesktopProxy } from "./desktopProxy.js";
+import { ensureDesktopProxy, isDesktopRuntime } from "./desktopProxy.js";
 import { t } from "./i18n.js";
 
 const localProxyBaseUrl = (
@@ -69,7 +69,12 @@ export async function isLocalProxyAvailable() {
       signal: withTimeout(proxyHealthTimeoutMs),
       cache: "no-store",
     });
-    proxyState.available = response.ok;
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    // A identidade evita confundir outro programa que ocupe a porta com o
+    // proxy do Papers News.
+    const data = await response.json().catch(() => null);
+    proxyState.available = data?.service === "papers-news-feed-proxy";
   } catch {
     proxyState.available = false;
   }
@@ -198,9 +203,14 @@ function hostnameOf(url) {
   }
 }
 
+function proxyHintFor(proxyAvailable) {
+  if (proxyAvailable) return "";
+  return t(isDesktopRuntime() ? "error.proxyHintDesktop" : "error.proxyHint");
+}
+
 function formatFeedError(feedUrl, error, proxyAvailable) {
   const detail = error instanceof Error ? error.message : String(error);
-  const proxyHint = proxyAvailable ? "" : t("error.proxyHint");
+  const proxyHint = proxyHintFor(proxyAvailable);
 
   return t("error.feedLoad", { url: feedUrl, proxyHint, detail });
 }
@@ -209,6 +219,13 @@ async function fetchFeedOnce(feedUrl, source, timeout) {
   if (await isLocalProxyAvailable()) {
     const { text, finalUrl } = await fetchTextViaLocalProxy(feedUrl, timeout);
     return parseFeedXml(text, source, finalUrl || feedUrl);
+  }
+
+  // No aplicativo desktop o proxy local é obrigatório. Não enviamos a URL do
+  // feed para serviços públicos de terceiros: além de vazar o que você lê,
+  // isso transformaria um problema local em uma dependência externa.
+  if (isDesktopRuntime()) {
+    throw new Error(t("error.proxyHintDesktop"));
   }
 
   try {
@@ -233,7 +250,7 @@ async function fetchFeed(
   try {
     return await fetchFeedOnce(feedUrl, source, timeout);
   } catch (firstError) {
-    if (!proxyAvailable || !allowPublicFallback) {
+    if (!proxyAvailable || !allowPublicFallback || isDesktopRuntime()) {
       throw new Error(formatFeedError(feedUrl, firstError, proxyAvailable));
     }
 
@@ -677,6 +694,10 @@ async function fillMissingImages(articles, cachedArticles) {
 async function fetchTextViaBestTransport(url, timeout) {
   if (await isLocalProxyAvailable()) {
     return fetchTextViaLocalProxy(url, timeout);
+  }
+
+  if (isDesktopRuntime()) {
+    throw new Error(t("error.openPageDesktop", { url }));
   }
 
   try {

@@ -18,7 +18,7 @@ Um leitor pessoal de notícias para acompanhar publicações de diferentes sites
 - **Offline para leitura.** O que já foi carregado continua acessível sem internet; atualizar as fontes e baixar imagens novas exige conexão.
 - **Código aberto (MIT).** Qualquer pessoa pode auditar exatamente o que o aplicativo faz.
 
-O app acessa apenas os sites cujos feeds você cadastra, os servidores das imagens dessas notícias e, como contingência, serviços públicos de CORS. Se o proxy local falhar, a URL do feed pode ser enviada a `rss2json.com` ou `allorigins.win` como última alternativa — isso está detalhado em [PRIVACY.md](PRIVACY.md). O proxy local escuta somente em `127.0.0.1`.
+O app acessa apenas os sites cujos feeds você cadastra e os servidores das imagens dessas notícias. No aplicativo desktop, todo o tráfego de feeds passa pelo proxy local em `127.0.0.1`, que recusa requisições de outros sites e endereços de rede privada. Serviços públicos de CORS (`rss2json.com` e `allorigins.win`) existem apenas como contingência ao abrir o projeto no navegador; **no desktop eles não são usados**. Detalhes em [PRIVACY.md](PRIVACY.md).
 
 ## Recursos
 
@@ -35,7 +35,8 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - Modo de leitura dentro do app, no estilo Instapaper, sem menus e anúncios; os links do texto abrem no navegador.
 - Imagem de capa em todo cartão: quando o feed não traz foto, o app procura a imagem na página original e, se o site bloquear, tenta pelo proxy local; no limite, aparece um marcador com as iniciais da fonte.
 - Interface responsiva em português ou inglês, com estados de carregamento, erro e lista vazia.
-- Abertura de publicações no navegador padrão do sistema.
+- Abertura de publicações no navegador padrão do sistema, somente para endereços `http:` e `https:`.
+- Distribuição como ZIP portátil ou pacote **MSIX** para a Microsoft Store.
 
 ## Tecnologias
 
@@ -54,8 +55,9 @@ O app acessa apenas os sites cujos feeds você cadastra, os servidores das image
 - `src/styles/`: tokens de design, estilos globais e estilos das telas.
 - `src/data/`: publicações e fontes de demonstração.
 - `public/images/`: ilustrações usadas no conteúdo de demonstração.
-- `scripts/`: proxy local de feeds, launcher do Vite/Neutralino e empacotador do executável Windows.
-- `neutralino.config.json`: configuração da janela e dos recursos do app desktop.
+- `scripts/`: proxy local de feeds, launcher do Vite/Neutralino, empacotador do ZIP e gerador do pacote MSIX.
+- `appx/`: modelo do manifesto MSIX, configuração de identidade e instruções para a Microsoft Store.
+- `neutralino.config.json`: configuração da janela, da segurança e dos recursos do app desktop.
 - `PRIVACY.md`: política de privacidade e detalhes sobre os dados locais.
 - `LICENSE` e `THIRD-PARTY-NOTICES.txt`: licença MIT do projeto e licenças dos componentes de terceiros.
 - `resources/`: arquivos gerados pelo build do Vite; não são versionados.
@@ -122,6 +124,20 @@ O pacote fica em `dist/` e contém:
 
 O comando também gera o arquivo `.sha256` com o checksum do ZIP. O proxy roda no `papers-news-node.exe`, o runtime Node.js oficial assinado pela OpenJS Foundation, em vez de um executável próprio gerado com [Single Executable Applications](https://nodejs.org/api/single-executable-applications.html). Assim o binário mantém a assinatura digital e não é bloqueado pelo Controle de Aplicativo do Windows. Mantenha o runtime e o `feed-proxy.cjs` na mesma pasta do aplicativo.
 
+### Pacote MSIX (Microsoft Store)
+
+Para gerar o pacote MSIX de Windows x64:
+
+```bash
+npm run desktop:msix
+```
+
+O comando monta o pacote portátil, gera os ícones exigidos pelo Windows, preenche `appx/AppxManifest.xml` e compacta tudo com o `MakeAppx.exe`. O resultado fica em `dist/papers-news-<versão>-win_x64.msix`, com o `.sha256` ao lado.
+
+O `MakeAppx.exe` vem com o Windows SDK. Se ele não estiver instalado, o script ainda prepara a pasta de palco e o manifesto em `dist/msix/` e mostra as instruções para concluir. Para exigir o `.msix` de verdade, use `node scripts/package-msix.mjs --require-makeappx`.
+
+Antes de publicar, troque `identityName` e `publisher` em `appx/msix.config.json` pelos valores reservados no Partner Center. As instruções completas — incluindo teste local com certificado e observações para a certificação — estão em [appx/README.md](appx/README.md). A Microsoft Store reassina o pacote; não é preciso comprar certificado de autoridade certificadora.
+
 ## Fontes RSS/Atom
 
 Basta colar o endereço principal do site (por exemplo, `https://exemplo.com/`). O Papers News tenta descobrir o feed sozinho, nesta ordem:
@@ -134,7 +150,9 @@ Basta colar o endereço principal do site (por exemplo, `https://exemplo.com/`).
 
 Se o site não publica RSS/Atom ou não expõe o endereço, ainda é possível informar o feed diretamente (por exemplo, `https://exemplo.com/feed/`).
 
-A leitura acontece no proxy local (`scripts/feed-proxy.cjs`), que baixa o XML e o entrega ao app com os cabeçalhos de CORS necessários. O proxy usa o seu próprio IP, segue redirecionamentos, respeita o charset do feed, bloqueia endereços privados e limita a resposta a 15 MB. A rota `/image?url=` faz o mesmo para fotos: baixa a imagem como binário (até 12 MB) com os cabeçalhos de um navegador, o que resolve os sites que recusam a imagem pedida direto pelo WebView. RSS2JSON e AllOrigins continuam existindo apenas como alternativas caso o proxy não esteja rodando.
+A leitura acontece no proxy local (`scripts/feed-proxy.cjs`), que baixa o XML e o entrega ao app com os cabeçalhos de CORS necessários. O proxy usa o seu próprio IP, segue redirecionamentos, respeita o charset do feed, bloqueia endereços privados e limita a resposta a 15 MB. A rota `/image?url=` faz o mesmo para fotos: baixa a imagem como binário (até 12 MB) com os cabeçalhos de um navegador, o que resolve os sites que recusam a imagem pedida direto pelo WebView. Ele só aceita requisições da própria interface e encerra sozinho quando o aplicativo fecha.
+
+RSS2JSON e AllOrigins continuam existindo **apenas para o projeto rodando no navegador**. No aplicativo desktop eles são desativados: se o proxy local falhar, o app mostra um erro em vez de enviar a URL do feed a terceiros.
 
 No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `feed-proxy.cjs` e é iniciado sob demanda pelo próprio aplicativo.
 
@@ -149,6 +167,7 @@ No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `
 | `npm test` | Executa os testes automatizados |
 | `npm run desktop` | Gera a build, inicia o proxy e abre o app com Neutralino.js |
 | `npm run desktop:package` | Gera o ZIP do executável Windows com o proxy embutido |
+| `npm run desktop:msix` | Gera o pacote MSIX para a Microsoft Store (requer o MakeAppx do Windows SDK) |
 | `npm run desktop:update` | Prepara ou atualiza os binários e o cliente do Neutralino.js |
 
 ## Solução de problemas
@@ -156,11 +175,11 @@ No app desktop empacotado, o proxy roda em `papers-news-node.exe` com o script `
 - **A janela do desktop abre em branco:** confirme que `enableServer` está como `true` em `neutralino.config.json` e execute `npm run desktop:update` para baixar o cliente `resources/js/neutralino.js`, depois `npm run desktop`.
 - **A janela fica preta depois de fechar e abrir o app (versões até 0.4.0):** o proxy da versão antiga (`papers-news-proxy.exe`) continuava rodando e prendia a porta `51789`. Feche esse processo no Gerenciador de Tarefas (ou reinicie o computador) uma vez e atualize para a 0.4.1; a partir dela o proxy encerra junto com o app.
 - **O modo de leitura mostra apenas o resumo:** alguns sites escondem o texto atrás de login, paywall ou proteção contra robôs. Nesse caso, o Papers News exibe o resumo do feed e mantém o botão "Abrir publicação" para continuar no site.
-- **O executável do Windows não busca notícias:** mantenha o `papers-news-node.exe` e o `feed-proxy.cjs` na mesma pasta do `papers-news-win_x64.exe`. Eles são iniciados automaticamente; se você os removeu, gere o pacote novamente com `npm run desktop:package`.
+- **O executável do Windows não busca notícias:** mantenha o `papers-news-node.exe` e o `feed-proxy.cjs` na mesma pasta do `papers-news-win_x64.exe`. Eles são iniciados automaticamente; se você os removeu, gere o pacote novamente com `npm run desktop:package`. No MSIX, reinstale o aplicativo.
 - **Não consigo adicionar um site:** confirme que o proxy local está ativo. `npm run dev`, `npm run preview` e `npm run desktop` o iniciam automaticamente; para rodar separado, use `npm run proxy`. Se a porta `8787` estiver ocupada por outro programa, inicie o proxy com `FEED_PROXY_PORT=8790` e defina `VITE_FEED_PROXY_URL=http://127.0.0.1:8790` para o app.
 - **Os dados do desktop não são salvos entre execuções:** o app usa a porta fixa `51789` (em `neutralino.config.json`) justamente para manter o mesmo endereço local e preservar fontes, cache e favoritos no IndexedDB. Não altere essa porta sem necessidade.
 - **O site não tem feed:** alguns sites não publicam RSS/Atom. Nesse caso, não há como montar o feed; cadastre a URL direta de um feed do mesmo site, se existir.
-- **O feed não atualiza:** verifique a conexão com o site. Se o proxy estiver desligado, o app tenta RSS2JSON e AllOrigins, que são serviços públicos e podem aplicar limites de uso.
+- **O feed não atualiza:** verifique a conexão com o site. No navegador, se o proxy estiver desligado, o app tenta RSS2JSON e AllOrigins, que são serviços públicos e podem aplicar limites de uso. No desktop, o proxy local é obrigatório; feche e abra o aplicativo para reiniciá-lo.
 - **Aviso de armazenamento cheio:** remova fontes ou favoritos antigos. As fontes e publicações ficam no IndexedDB (banco `papers-news`); tema, idioma, tamanho do texto e retenção continuam no `localStorage`. Na primeira execução da 0.9.0, os dados antigos de `papers-news:state:v1` são migrados automaticamente.
 
 Consulte também o [CHANGELOG.md](CHANGELOG.md) para ver o que mudou em cada versão.
