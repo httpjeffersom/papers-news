@@ -19,24 +19,21 @@ gerados mesmo assim, com instruções para concluir.
 
 ## Antes de publicar
 
-### 1. Reserve o nome no Partner Center
+### 1. Identidade do pacote
 
-No [Partner Center](https://partner.microsoft.com/dashboard), crie o aplicativo
-e reserve o nome. O Partner Center mostra dois valores que **precisam** ser
-copiados para `appx/msix.config.json`:
+Os valores do Partner Center já estão configurados em `appx/msix.config.json`
+(produto **papers-news**, ID da Store `9PPS3L9JTFJN`):
 
 | Campo no Partner Center | Campo no `msix.config.json` |
 | --- | --- |
-| Nome do pacote / Package identity name | `identityName` |
-| Publisher / Publisher ID | `publisher` |
-| Nome de exibição do publisher | `publisherDisplayName` |
+| Package/Identity/Name | `identityName` = `JeffersomBenvindo.papers-news` |
+| Package/Identity/Publisher | `publisher` = `CN=2FBB0D15-A230-426C-B07C-E8FAF80D41A9` |
+| Package/Properties/PublisherDisplayName | `publisherDisplayName` = `Jeffersom Benvindo` |
 
 O `publisher` tem o formato `CN=...` e precisa ser idêntico ao do Partner
-Center. O `identityName` também não pode ser alterado depois da primeira
-publicação, porque é ele que identifica os dados do aplicativo nas atualizações.
-
-Os valores atuais são apenas exemplos. O empacotador avisa quando eles ainda
-não foram trocados.
+Center. O `identityName` não pode ser alterado depois da primeira publicação,
+porque é ele que identifica os dados do aplicativo nas atualizações. Se um dia
+você criar outro produto no Partner Center, copie os novos valores para cá.
 
 ### 2. Instale o MakeAppx
 
@@ -87,7 +84,7 @@ administrador**):
 
 ```powershell
 # 1. Crie um certificado de teste com o mesmo Publisher do manifesto.
-$publisher = "CN=Jeffersom"
+$publisher = "CN=2FBB0D15-A230-426C-B07C-E8FAF80D41A9"
 $cert = New-SelfSignedCertificate `
   -Type Custom `
   -Subject $publisher `
@@ -112,7 +109,7 @@ Add-AppxPackage "$env:TEMP\papers-news-teste.msix"
 Para remover: `Get-AppxPackage *PapersNews* | Remove-AppxPackage`.
 
 O certificado de teste também pode ser removido depois:
-`Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object Subject -eq "CN=Jeffersom" | Remove-Item`.
+`Get-ChildItem Cert:\LocalMachine\TrustedPeople | Where-Object Subject -eq "CN=2FBB0D15-A230-426C-B07C-E8FAF80D41A9" | Remove-Item`.
 
 ## Envio à Microsoft Store
 

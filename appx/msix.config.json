@@ -1,7 +1,7 @@
 {
-  "identityName": "Jeffersom.PapersNews",
-  "publisher": "CN=Jeffersom",
-  "publisherDisplayName": "Jeffersom",
+  "identityName": "JeffersomBenvindo.papers-news",
+  "publisher": "CN=2FBB0D15-A230-426C-B07C-E8FAF80D41A9",
+  "publisherDisplayName": "Jeffersom Benvindo",
   "displayName": "Papers News",
   "shortName": "Papers News",
   "description": "Leitor pessoal de notícias RSS/Atom, local-first e sem telemetria.",
