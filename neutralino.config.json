@@ -21,7 +21,8 @@
   },
   "nativeAllowList": [
     "os.open",
-    "os.spawnProcess"
+    "os.spawnProcess",
+    "window.show"
   ],
   "serverHeaders": {
     "content-security-policy": "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: http:; font-src 'self' data:; media-src 'none'; connect-src 'self' http://127.0.0.1:8787 ws://127.0.0.1:51789; worker-src 'none'; manifest-src 'self'",
@@ -44,7 +45,8 @@
       "maximizable": true,
       "enableInspector": false,
       "newWindowPolicy": "browser",
-      "exitProcessOnClose": true
+      "exitProcessOnClose": true,
+      "hidden": true
     }
   },
   "cli": {

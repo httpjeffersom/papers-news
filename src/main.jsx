@@ -23,3 +23,18 @@ createRoot(document.getElementById("root")).render(
     </LanguageProvider>
   </React.StrictMode>,
 );
+
+// A janela do app empacotado começa oculta (modes.window.hidden) e aparece
+// aqui, depois do primeiro quadro da interface, evitando a tela preta/branca
+// do Neutralino enquanto o WebView carrega. Dois rAF garantem que o quadro
+// já foi composto e pintado. O fallback de segurança fica em neutralino.js.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    globalThis.__PAPERS_NEWS_PAINTED = true;
+    const onPaint = globalThis.__PAPERS_NEWS_ON_PAINT;
+    if (typeof onPaint === "function") {
+      globalThis.__PAPERS_NEWS_ON_PAINT = undefined;
+      onPaint();
+    }
+  });
+});
