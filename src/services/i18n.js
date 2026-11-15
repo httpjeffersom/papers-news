@@ -1,13 +1,15 @@
-// Idioma da interface do Papers News.
+// Idiomas da interface do Papers News.
 //
-// O inglês é o idioma padrão e também o fallback: se uma chave ainda não
-// tiver tradução, o texto em inglês aparece no lugar em vez de a interface
-// ficar vazia. Quem preferir português escolhe na primeira execução.
+// O inglês é o idioma padrão e também o fallback de seleção; o português é o
+// fallback de tradução (dicionário completo). Se uma chave ainda não tiver
+// tradução no idioma escolhido, o texto em português aparece no lugar em vez
+// de a interface ficar vazia.
 export const languageStorageKey = "papers-news:language:v1";
 
 export const languages = [
   { id: "pt-BR", label: "Português", code: "PT" },
   { id: "en", label: "English", code: "EN" },
+  { id: "es", label: "Español", code: "ES" },
 ];
 
 export const defaultLanguage = "en";
@@ -397,6 +399,182 @@ const translations = {
       'Couldn\'t open {url}. The local proxy isn\'t running; run "npm run dev" (or "npm run proxy") and try again. Details: {detail}',
     "error.notAFeed": "The address didn't return an RSS/Atom feed.",
     "error.unknownSource": "Unknown source",
+  },
+
+  es: {
+    "app.brandAria": "Papers News, ir a todas las noticias",
+    "nav.space": "TU ESPACIO",
+    "nav.aria": "Navegación principal",
+    "nav.all": "Todas las noticias",
+    "nav.favorites": "Favoritos",
+    "nav.sources": "Fuentes",
+    "nav.settings": "Ajustes",
+    "nav.version": "versión {version}",
+
+    "search.sources": "Buscar fuente",
+    "search.feed": "Buscar en tu feed",
+
+    "refresh.updating": "Actualizando",
+    "refresh.update": "Actualizar",
+    "refresh.updatingAria": "Actualizando el feed",
+    "refresh.updateAria": "Actualizar el feed",
+
+    "feed.aria": "Feed de noticias",
+    "feed.favoritesAria": "Noticias favoritas",
+    "feed.title": "Tu feed",
+    "feed.favoritesTitle": "Favoritos",
+    "feed.note": "en orden cronológico",
+    "feed.favoritesNote": "guardadas para leer después",
+    "feed.count": ({ count }) =>
+      `${count} ${count === 1 ? "publicación" : "publicaciones"}`,
+    "feed.demoTitle": "Contenido de demostración.",
+    "feed.demoText":
+      "Estas publicaciones son ficticias. Añade un sitio en Fuentes para seguir noticias reales.",
+    "feed.updating": "Actualizando publicaciones…",
+    "feed.loading": "Cargando publicaciones…",
+    "feed.emptyFavoritesTitle": "Tu colección empieza aquí",
+    "feed.emptyFavoritesText":
+      "Guarda una publicación con el marcador para encontrarla aquí.",
+    "feed.emptyTitle": "No se encontraron publicaciones",
+    "feed.emptyText": "Prueba con otro término de búsqueda o vuelve más tarde.",
+    "feed.footer": "Llegaste al final de las publicaciones disponibles.",
+
+    "item.unknownDate": "Fecha desconocida",
+    "item.demoTag": "DEMO",
+    "item.read": "Leer aquí",
+    "item.openDemo": "Abrir ejemplo",
+    "item.open": "Abrir publicación",
+    "item.save": "Guardar en favoritos",
+    "item.unsave": "Quitar de favoritos",
+    "item.openError": "No se pudo abrir el enlace.",
+
+    "sources.eyebrow": "PERSONALIZA TU FEED",
+    "sources.title": "Fuentes",
+    "sources.note": "los sitios que sigues",
+    "sources.count": ({ shown, total, filtered }) => {
+      if (total === 0) return "0 fuentes";
+      const unit = total === 1 ? "fuente" : "fuentes";
+      return filtered ? `${shown} de ${total} ${unit}` : `${total} ${unit}`;
+    },
+    "sources.notice":
+      "Pega la dirección del sitio (por ejemplo, https://ejemplo.com/) y Papers News encuentra el feed automáticamente. Si lo prefieres, indica la dirección directa del RSS/Atom. El proxy local se inicia junto con la app, así que no depende de servicios públicos.",
+    "sources.nameLabel": "Nombre de la fuente (opcional)",
+    "sources.namePlaceholder": "Usar el nombre del sitio",
+    "sources.urlLabel": "Dirección del sitio",
+    "sources.urlPlaceholder": "ejemplo.com o https://ejemplo.com/feed/",
+    "sources.searching": "Buscando el feed...",
+    "sources.add": "Buscar y añadir",
+    "sources.verifying": "Verificando el sitio y buscando publicaciones…",
+    "sources.invalidUrl": "Escribe una dirección de sitio válida.",
+    "sources.invalidProtocol": "Escribe una dirección de sitio HTTP o HTTPS.",
+    "sources.listTitle": "Fuentes guardadas",
+    "sources.listNote": "Sitios y feeds encontrados",
+    "sources.emptyTitle": "No hay fuentes guardadas",
+    "sources.emptyText": "Añade un sitio para buscar sus publicaciones.",
+    "sources.emptyFilteredTitle": "No se encontraron fuentes",
+    "sources.emptyFilteredText": "Prueba con otro término de búsqueda.",
+    "sources.feedLabel": "Feed: {url}",
+    "sources.removeAria": "Eliminar {name}",
+    "sources.removeTitle": "Eliminar fuente",
+    "sources.removeDialogTitle": "¿Eliminar fuente?",
+    "sources.removeDialogBefore": "¿De verdad quieres eliminar",
+    "sources.removeDialogAfter": "de tu lista de fuentes?",
+    "sources.cancel": "Cancelar",
+    "sources.remove": "Eliminar",
+
+    "settings.title": "Ajustes",
+    "settings.note": "deja tu espacio a tu manera",
+    "settings.language": "Idioma",
+    "settings.languageText": "Elige el idioma de la interfaz de la aplicación.",
+    "settings.languageHint": "El cambio se aplica a toda la interfaz.",
+    "settings.appearance": "Apariencia",
+    "settings.appearanceText": "Elige cómo se ve Papers News.",
+    "settings.theme": "Tema",
+    "settings.themeHint": "Claro para el día, oscuro para ambientes con poca luz.",
+    "settings.themeAria": "Tema de la interfaz",
+    "settings.themeLight": "Claro",
+    "settings.themeDark": "Oscuro",
+    "settings.themeLightAria": "Tema claro",
+    "settings.themeDarkAria": "Tema oscuro",
+    "settings.reading": "Lectura",
+    "settings.readingText": "Ajusta el texto del feed y del modo de lectura.",
+    "settings.fontSize": "Tamaño del texto",
+    "settings.fontSizeHint": "{level} — el tamaño se aplica a toda la interfaz.",
+    "settings.fontSizeAria": "Tamaño del texto",
+    "settings.fontScaleSmall": "Pequeño",
+    "settings.fontScaleLarge": "Más grande",
+    "settings.previewKicker": "VISTA PREVIA",
+    "settings.previewTitle": "Una lectura cómoda, a tu manera",
+    "settings.previewText":
+      "Las noticias aparecen en orden cronológico, con espacio para respirar. Ajusta el tamaño hasta encontrar el que mejor te funcione.",
+    "settings.storage": "Almacenamiento",
+    "settings.storageText":
+      "Define por cuánto tiempo se guardan las noticias en esta computadora.",
+    "settings.retention": "Eliminar noticias antiguas",
+    "settings.retentionHint": ({ days }) =>
+      `Las noticias se eliminan después de ${days} ${
+        days === 1 ? "día" : "días"
+      }. Los favoritos se guardan para siempre.`,
+    "settings.retentionAria": "Eliminar noticias antiguas",
+    "settings.day": "día",
+    "settings.days": "días",
+    "settings.custom": "Personalizado",
+    "settings.footnote":
+      "Tus preferencias se guardan solo en esta computadora.",
+    "settings.privacyTitle": "Sin recolección de datos",
+    "settings.privacyText":
+      "No recolectamos nada: las fuentes, las noticias y los favoritos se guardan localmente, en tu computadora. El código es abierto y puedes revisarlo en el repositorio del proyecto.",
+    "settings.repository": "Abrir el repositorio en GitHub",
+    "settings.repositoryError": "No se pudo abrir el navegador.",
+
+    "reader.back": "Volver",
+    "reader.loading": "Preparando la lectura…",
+    "reader.limited":
+      "El texto completo no se pudo cargar ahora. Mostrando el resumen de la publicación.",
+    "reader.noText":
+      "Esta publicación no trajo texto para leer. Abre la publicación en el sitio para continuar.",
+    "reader.footer": "Estás leyendo en Papers News.",
+    "reader.continue": "Continuar en el sitio",
+
+    "font.small": "Pequeño",
+    "font.default": "Predeterminado",
+    "font.medium": "Medio",
+    "font.large": "Grande",
+    "font.larger": "Más grande",
+
+    "app.refreshPartial":
+      "Actualización parcial. No se pudo actualizar: {detail}. Las noticias antiguas siguen disponibles cuando hay caché.",
+    "app.moreSources": ({ count }) =>
+      `y ${count} ${count === 1 ? "fuente" : "fuentes"} más`,
+    "app.refreshError": "No se pudo actualizar el feed. Inténtalo de nuevo.",
+    "app.loadingStorage": "Cargando tu espacio…",
+    "app.storageFull":
+      "El almacenamiento de la aplicación está lleno. Elimina fuentes o reduce el tiempo de retención de las noticias.",
+    "app.saveError": "No se pudieron guardar tus cambios en este dispositivo.",
+    "app.alreadyAdded": "Este sitio ya está guardado.",
+    "app.addSourceError": "No se pudo añadir este sitio.",
+
+    "error.feedLoad":
+      "No se pudo cargar {url}.{proxyHint} Detalles: {detail}",
+    "error.proxyHint":
+      ' El proxy local no está activo; ejecuta "npm run dev" (o "npm run proxy") e inténtalo de nuevo.',
+    "error.proxyHintDesktop":
+      " El proxy local no se inició. Cierra y vuelve a abrir Papers News; si continúa, reinstala la aplicación.",
+    "error.openPageDesktop":
+      "No se pudo abrir {url} porque el proxy local no está activo. Cierra y vuelve a abrir Papers News.",
+    "error.allOrigins": "AllOrigins respondió HTTP {status}",
+    "error.rss2json": "RSS2JSON respondió HTTP {status}",
+    "error.rss2jsonRead": "RSS2JSON no pudo leer este feed.",
+    "error.alternativesFailed":
+      " Las alternativas públicas también fallaron ({detail}).",
+    "error.feedNotFound":
+      "No encontré un feed RSS/Atom en {url}. Si el sitio publica un feed, indica su dirección directa (por ejemplo, {example}). Detalles: {detail}",
+    "error.feedNotFoundHint":
+      "No encontré un feed RSS/Atom en {url}. Verifica si el sitio publica un feed o indica su dirección directa (por ejemplo, {example}).",
+    "error.openPage":
+      'No se pudo abrir {url}. El proxy local no está activo; ejecuta "npm run dev" (o "npm run proxy") e inténtalo de nuevo. Detalles: {detail}',
+    "error.notAFeed": "La dirección no devolvió un feed RSS/Atom.",
+    "error.unknownSource": "Fuente desconocida",
   },
 };
 
