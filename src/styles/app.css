@@ -56,11 +56,6 @@
   width: 32px;
   height: 32px;
   flex: none;
-  border-radius: 8px;
-  /* O ícone vem com fundo transparente; o tile claro mantém a arte visível
-     no tema claro e dá base ao anel e à sombra. */
-  background: linear-gradient(145deg, #ffffff 55%, #e3e3e0 100%);
-  box-shadow: 0 0 0 1px var(--stroke-strong), var(--shadow-2);
   object-fit: contain;
 }
 
