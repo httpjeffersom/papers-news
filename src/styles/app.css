@@ -59,6 +59,13 @@
   object-fit: contain;
 }
 
+/* Versão do ícone sobre tile escuro para o modo escuro. O `content: url()`
+   troca a imagem do <img> e é suportado pelo Chromium (WebView2). Sem
+   suporte, o ícone claro continua valendo — degradação segura. */
+:root[data-theme="dark"] .brand-icon {
+  content: url("/app-icon-header-dark.png");
+}
+
 .brand-name {
   font-family: var(--font-brand);
   font-size: 1.0625rem;
