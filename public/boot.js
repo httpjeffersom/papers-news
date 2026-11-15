@@ -23,10 +23,9 @@
     root.style.setProperty("--font-scale", String(scales[fontIndex]));
     root.dataset.fontSize = ids[fontIndex];
 
-    // Mesma chave de i18n.js: evita a interface começar em português quando o
-    // idioma salvo é o inglês.
+    // Mesma chave de i18n.js: inglês é o padrão; português só quando salvo.
     const storedLanguage = localStorage.getItem("papers-news:language:v1");
-    document.documentElement.lang = storedLanguage === "en" ? "en" : "pt-BR";
+    document.documentElement.lang = storedLanguage === "pt-BR" ? "pt-BR" : "en";
 
     document
       .querySelector('meta[name="theme-color"]')

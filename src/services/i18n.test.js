@@ -41,25 +41,25 @@ afterEach(() => {
   setActiveLanguage(defaultLanguage);
 });
 
-test("defaults to Portuguese and accepts only known languages", () => {
-  assert.equal(defaultLanguage, "pt-BR");
-  assert.equal(loadLanguage(), "pt-BR");
-  assert.equal(normalizeLanguage("fr"), "pt-BR");
-  assert.equal(normalizeLanguage("en"), "en");
-  assert.equal(isLanguage("en"), true);
+test("defaults to English and accepts only known languages", () => {
+  assert.equal(defaultLanguage, "en");
+  assert.equal(loadLanguage(), "en");
+  assert.equal(normalizeLanguage("fr"), "en");
+  assert.equal(normalizeLanguage("pt-BR"), "pt-BR");
+  assert.equal(isLanguage("pt-BR"), true);
   assert.equal(isLanguage("es"), false);
 });
 
 test("restores and persists the saved language", () => {
-  const data = installStorage({ [languageStorageKey]: "en" });
+  const data = installStorage({ [languageStorageKey]: "pt-BR" });
 
-  assert.equal(loadLanguage(), "en");
+  assert.equal(loadLanguage(), "pt-BR");
 
-  saveLanguage("pt-BR");
-  assert.equal(data.get(languageStorageKey), "pt-BR");
+  saveLanguage("en");
+  assert.equal(data.get(languageStorageKey), "en");
 
   saveLanguage("xx");
-  assert.equal(data.get(languageStorageKey), "pt-BR");
+  assert.equal(data.get(languageStorageKey), "en");
 });
 
 test("translates the interface and falls back to Portuguese", () => {

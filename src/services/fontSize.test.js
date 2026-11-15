@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { setActiveLanguage } from "./i18n.js";
 import {
   applyFontSize,
   defaultFontSizeIndex,
@@ -76,6 +77,8 @@ test("persists the chosen size", () => {
 test("maps indexes to scale and label", () => {
   assert.equal(fontSizeScale(0), 0.9);
   assert.equal(fontSizeScale(4), 1.3);
+  assert.equal(fontSizeLabel(2), "Medium");
+  setActiveLanguage("pt-BR");
   assert.equal(fontSizeLabel(2), "Médio");
 });
 

@@ -126,7 +126,7 @@ test("parses RDF feeds using dc:date", () => {
 test("rejects documents that are not feeds", () => {
   assert.throws(
     () => parseFeedXml("<html><body>Página comum</body></html>", source, "https://blog.example/"),
-    /não retornou um feed RSS\/Atom/,
+    /didn't return an RSS\/Atom feed/,
   );
 });
 

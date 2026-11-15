@@ -1,8 +1,8 @@
 // Idioma da interface do Papers News.
 //
-// O português é o idioma padrão e também o fallback: se uma chave ainda não
-// tiver tradução em inglês, o texto em português aparece no lugar em vez de a
-// interface ficar vazia.
+// O inglês é o idioma padrão e também o fallback: se uma chave ainda não
+// tiver tradução, o texto em inglês aparece no lugar em vez de a interface
+// ficar vazia. Quem preferir português escolhe na primeira execução.
 export const languageStorageKey = "papers-news:language:v1";
 
 export const languages = [
@@ -10,7 +10,11 @@ export const languages = [
   { id: "en", label: "English", code: "EN" },
 ];
 
-export const defaultLanguage = "pt-BR";
+export const defaultLanguage = "en";
+
+// Idioma com o dicionário completo: rede de segurança do translate() caso uma
+// chave venha a faltar no dicionário do idioma escolhido.
+export const fallbackLanguage = "pt-BR";
 
 export function isLanguage(value) {
   return languages.some((language) => language.id === value);
@@ -408,8 +412,8 @@ export function getActiveLanguage() {
 
 export function translate(language, key, vars) {
   const normalized = normalizeLanguage(language);
-  const dictionary = translations[normalized] ?? translations[defaultLanguage];
-  const value = dictionary[key] ?? translations[defaultLanguage][key];
+  const dictionary = translations[normalized] ?? translations[fallbackLanguage];
+  const value = dictionary[key] ?? translations[fallbackLanguage][key];
 
   if (value === undefined) return key;
   if (typeof value === "function") return value(vars ?? {});
